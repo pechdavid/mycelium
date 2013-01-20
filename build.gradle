@@ -1,0 +1,61 @@
+apply plugin: 'base'
+apply plugin: 'scala'
+apply plugin: 'application'
+
+defaultTasks 'assemble'
+
+sourceCompatibility = org.gradle.api.JavaVersion.toVersion("1.7")
+targetCompatibility = org.gradle.api.JavaVersion.toVersion("1.7")
+
+allprojects {
+	group = 'cz.pechdavid.mycelium'
+	sourceCompatibility = JavaVersion.VERSION_1_7
+	version = '0.0.1'
+
+	ext.plainVersion = version
+	ext.artifactId = projectDir.name
+	ext.groupId = group
+
+	repositories {
+		mavenCentral()
+		maven {
+			url "http://repo.scalanlp.org/repo"
+		}
+	}
+}
+
+mainClassName = "cz.pechdavid.mycelium"
+
+apply plugin: 'java'
+apply plugin: 'scala'
+
+configurations {
+	all*.exclude group: "commons-logging", module: "commons-logging"
+	all*.exclude group: "commons-logging", module: "commons-logging-api"
+	all*.exclude group: "org.apache.commons", module: "com.springsource.org.apache.commons.logging"
+	all*.exclude group: "org.slf4j", module: "slf4j-simple"
+	[compileJava, compileTestJava]*.options*.encoding = 'utf-8'
+}
+
+dependencies {
+	compile "org.slf4j:slf4j-api:1.6.4"
+	compile "org.slf4j:jcl-over-slf4j:1.6.4"
+
+	compile 'junit:junit:4.11'
+	compile "org.scalatest:scalatest_2.9.2:1.8"
+	runtime "ch.qos.logback:logback-classic:1.0.9"
+	
+	// Libraries needed to run the scala tools
+	scalaTools 'org.scala-lang:scala-compiler:2.10.0'
+	scalaTools 'org.scala-lang:scala-library:2.10.0'
+
+	// Libraries needed for scala api
+	compile 'org.scala-lang:scala-library:2.10.0'
+}
+
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+
+task wrapper(type: Wrapper) {
+		gradleVersion = '1.3'
+}
