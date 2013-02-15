@@ -1,6 +1,9 @@
 analysis/tmp/
 analysis/.lock
 analysis/.vpprefdata
+analysis/*~*
+analysis/*.working
+analysis/*.working2
 build/
 data/
 out/
