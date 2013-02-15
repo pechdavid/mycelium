@@ -2,7 +2,6 @@ package cz.pechdavid.mycelium.test.operator
 
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
-import module.{ModuleProps, ModuleSpec}
 import cz.pechdavid.mycelium.core.module
 import cz.pechdavid.mycelium.core.operator.DependencyLinearizer
 import module.{ModuleSpec, ModuleProps}
@@ -45,7 +44,7 @@ class DependencyLinearizerTest extends FlatSpec with ShouldMatchers {
         ModuleSpec("B", Set("A")),
         ModuleSpec("C", Set("B"))
       ))
-    } should produce [Exception]
+    } should produce[Exception]
   }
 
 }

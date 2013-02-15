@@ -48,8 +48,8 @@ dependencies {
 	compile "org.scalatest:scalatest_2.10.0:2.0.M5"
 	runtime "ch.qos.logback:logback-classic:1.0.9"
 
-	compile "com.typesafe.akka:akka-actor:2.1.0"
-	testCompile "com.typesafe.akka:akka-testkit:2.1.0"
+	compile "com.typesafe.akka:akka-actor_2.10:2.1.0"
+	testCompile "com.typesafe.akka:akka-testkit_2.10:2.1.0"
 	
 	// Libraries needed to run the scala tools
 	scalaTools 'org.scala-lang:scala-compiler:2.10.0'
