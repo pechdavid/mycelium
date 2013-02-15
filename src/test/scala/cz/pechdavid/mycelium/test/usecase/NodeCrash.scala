@@ -16,13 +16,6 @@ import akka.actor.{Props, Actor}
  */
 class NodeCrash extends FlatSpec with ShouldMatchers {
 
-  class EmptyActor extends Actor {
-    def receive = {
-      case x: AnyRef =>
-        // pass
-    }
-  }
-
   it should "Return error message after timeout and recover" in {
     // FIXME: start with lower ping timeout
     val nodeA = new SystemNode
