@@ -5,11 +5,11 @@ package cz.pechdavid.mycelium.core.module
  */
 
 case object PostInitialize
-case object RetrieveDependencies
-case class Dependencies(modules: Set[String])
 case object StartModule
 case object StopModule
 case object PostStop
+case object RecoverModule
+case class DependencyNotOnline(name: String)
 
 case class EventSubscribe(key: String)
 case class EventOccured(key: String)

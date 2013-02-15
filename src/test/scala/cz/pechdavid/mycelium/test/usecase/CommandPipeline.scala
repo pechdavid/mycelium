@@ -5,4 +5,9 @@ package cz.pechdavid.mycelium.test.usecase
  */
 class CommandPipeline {
 
+
+
+
+
+
 }

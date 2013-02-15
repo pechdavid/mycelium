@@ -6,17 +6,26 @@ import akka.actor.{Props, ActorSystem}
 /**
  * Created: 2/15/13 5:53 PM
  */
-class SystemNode(priority: Int) {
+class SystemNode {
+  def onlineNodes: Set[Long] = ???
+
+  val system = ActorSystem.create()
+
+  // FIXME: ping to assign number + name
+
+
   def registerProps(map: Map[String, Props]) {
     ???
   }
 
-
-  val system = ActorSystem.create()
 
   def boot(specs: Set[ModuleSpec], run: List[ModuleProps]) {
     ???
   }
 
   def running: Set[String] = ???
+
+  def shutdown() {
+    system.shutdown()
+  }
 }

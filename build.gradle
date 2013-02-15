@@ -27,6 +27,10 @@ allprojects {
 	}
 }
 
+tasks.withType(ScalaCompile) {
+	scalaCompileOptions.additionalParameters = ['-target:jvm-1.6']
+}
+
 mainClassName = "cz.pechdavid.mycelium"
 
 apply plugin: 'java'
@@ -64,4 +68,11 @@ apply plugin: 'eclipse'
 
 task wrapper(type: Wrapper) {
 		gradleVersion = '1.4'
+}
+
+test << {
+	ant.taskdef(name: 'scalatest', classname: 'org.scalatest.tools.ScalaTestAntTask', classpath: classpath.asPath)
+	ant.scalatest(runpath: testClassesDir, haltonfailure: 'false', fork: 'false') {
+		reporter(type: 'stdout')
+	}
 }
