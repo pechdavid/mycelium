@@ -6,8 +6,8 @@ import akka.actor.{Props, Actor}
 import collection.mutable
 import cz.pechdavid.mycelium.core.node.SystemNode
 import cz.pechdavid.mycelium.core.module.{ModuleProps, ModuleSpec, StartModule}
-import cz.pechdavid.mycelium.core.command.{RegisterCommandHandler, CommandBus}
-import cz.pechdavid.mycelium.core.event.{RegisterEventHandler, EventBus}
+import cz.pechdavid.mycelium.core.command.{CommandHandler, RegisterCommandHandler, CommandBus}
+import cz.pechdavid.mycelium.core.event.{EventHandler, RegisterEventHandler, EventBus}
 
 /**
  * Created: 2/15/13 6:11 PM
@@ -18,21 +18,25 @@ class CommandPipeline extends FlatSpec with ShouldMatchers {
   case class MyCommandCalled(name: String)
   case class Store(name: String)
 
-  class MyCommandHandler extends Actor {
-    def receive = {
-      case StartModule =>
-        context.actorFor("commandBus") ! RegisterCommandHandler
+  class MyCommandHandler extends CommandHandler {
+    def handle = {
       case MyCommand(name) =>
-        context.actorFor("eventBus") ! MyCommandCalled(name)
+        List(MyCommandCalled(name))
     }
   }
 
-  class MyCommandCalledHandler extends Actor {
+  class MyCommandCalledHandler extends EventHandler {
+    def handle = {
+      case MyCommandCalled(name) =>
+        notifyProjections(Set("inMemoryProjection"), Store(name))
+    }
+  }
+
+  class MyApp extends Actor {
     def receive = {
       case StartModule =>
-        context.actorFor("eventBus") ! RegisterEventHandler
-      case MyCommandCalled(name) =>
-        context.actorFor("inMemoryProjection") ! Store(name)
+        context.actorFor("commandBus") ! RegisterCommandHandler(new MyCommandHandler)
+        context.actorFor("eventBus") ! RegisterEventHandler(new MyCommandCalledHandler)
     }
   }
 
@@ -49,22 +53,19 @@ class CommandPipeline extends FlatSpec with ShouldMatchers {
     val system = new SystemNode
     system.registerProps(Map("eventBus" -> Props[EventBus],
       "commandBus" -> Props[CommandBus],
-      "myCommandHandler" -> Props[MyCommandHandler],
-      "myCommandCalledHandler" -> Props[MyCommandCalledHandler],
+      "myApp" -> Props[MyApp],
       "inMemoryProjection" -> Props(new InMemoryProjection(lst))))
 
     system.boot(
       Set(
         ModuleSpec("eventBus", Set.empty),
         ModuleSpec("commandBus", Set("eventBus")),
-        ModuleSpec("myCommandHandler", Set("commandBus", "eventBus")),
-        ModuleSpec("myCommandCalledHandler", Set("eventBus", "inMemoryProjection")),
+        ModuleSpec("myApp", Set("commandBus", "eventBus", "inMemoryProjection")),
         ModuleSpec("inMemoryProjection", Set.empty)
       ),
       List(
         ModuleProps("inMemoryProjection", Map.empty),
-        ModuleProps("myCommandHandler", Map.empty),
-        ModuleProps("myCommandCalledHandler", Map.empty)
+        ModuleProps("myApp", Map.empty)
       )
     )
 
@@ -76,7 +77,4 @@ class CommandPipeline extends FlatSpec with ShouldMatchers {
 
     system.shutdown()
   }
-
-
-
 }

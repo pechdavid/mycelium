@@ -12,6 +12,10 @@ import cz.pechdavid.mycelium.core.module.ModuleSpec
  */
 class NodeCommunication extends FlatSpec with ShouldMatchers {
 
+  it should "Simulate node interactions" in {
+    // FIXME: HERE
+  }
+
   it should "Be variable about node run list" in {
     // FIXME: start with lower ping timeout
     val nodeA = new SystemNode
