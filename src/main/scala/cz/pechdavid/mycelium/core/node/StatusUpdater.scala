@@ -1,25 +1,21 @@
 package cz.pechdavid.mycelium.core.node
 
 import akka.amqp._
-import cz.pechdavid.mycelium.core.module.ProduceConsumeActor
 import scala.concurrent.duration._
+import cz.pechdavid.mycelium.core.messaging.ConsumerProxy
 
 /**
  * Created: 2/17/13 12:31 PM
  */
-class StatusUpdater(node: SystemNode) extends ProduceConsumeActor {
+class StatusUpdater(node: SystemNode) extends ConsumerProxy {
 
   case object SchedulerTick
   context.system.scheduler.schedule(0 second, 500 millisecond, context.self, SchedulerTick)
 
   def receive = {
     case SchedulerTick =>
-      prod.foreach {
-        _ ! PublishToExchange(Message(
-          NodeStatus(node.name,
-            node.localAvailable,
-            node.localRunning), ""), "nodeUpdates", false)
-      }
+      producerRef ! PublishToExchange(Message(
+          NodeStatus(node.name, node.localAvailable, node.localRunning), ""), "nodeUpdates", false)
 
     case del: Delivery =>
       val status = parseDelivery(del).extract[NodeStatus]

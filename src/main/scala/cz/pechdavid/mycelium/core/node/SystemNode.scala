@@ -7,6 +7,7 @@ import cz.pechdavid.mycelium.core.operator.DependencyLinearizer
 import cz.pechdavid.mycelium.core.module.ModuleProps
 import cz.pechdavid.mycelium.core.module.ModuleSpec
 import scala.Some
+import cz.pechdavid.mycelium.core.messaging.Producer
 
 /**
  * Created: 2/15/13 5:53 PM
@@ -27,6 +28,7 @@ class SystemNode {
 
   val updater = system.actorOf(Props(new StatusUpdater(this)), "status-updater")
   val supervisor = system.actorOf(Props(new ModuleSupervisor), "supervisor")
+  val producer = system.actorOf(Props(new Producer), "producer")
 
   // FIXME: ping to assign number + name
   // FIXME: local shortcut for delivery
@@ -51,19 +53,35 @@ class SystemNode {
     correctOrder.foreach {
       ordered =>
         val ord = ordered
-        val props = run.dropWhile {
-          ord != _.name
-        }.headOption match {
-          case Some(x) => x
-        }
-        val launch = moduleLaunch.dropWhile {
-          ord != _._1
-        }.headOption match {
-          case Some(x) => x._2
-        }
+        val lookup = lookupValues(run, ord)
 
-        moduleLifecycle.start(ord, props, launch, supervisor)
+        moduleLifecycle.create(ord, lookup._2, lookup._1, supervisor)
     }
+
+    correctOrder.foreach {
+      ordered =>
+        val ord = ordered
+        moduleLifecycle.start(ord, supervisor)
+    }
+
+    // FIXME: launch other deps
+  }
+
+
+  def lookupValues(run: List[ModuleProps], ord: String): ((ModuleProps) => Props, ModuleProps) = {
+    val props = run.dropWhile {
+      ord != _.name
+    }.headOption match {
+      case Some(x) => x
+      case None => throw new RuntimeException
+    }
+    val launch = moduleLaunch.dropWhile {
+      ord != _._1
+    }.headOption match {
+      case Some(x) => x._2
+      case None => throw new RuntimeException
+    }
+    (launch, props)
   }
 
   def globalAvailable: Set[ModuleSpec] = {
@@ -76,10 +94,6 @@ class SystemNode {
     status.map {
       _.running
     }.flatten
-  }
-
-  def moduleRef(name: String): ActorRef = {
-    ???
   }
 
   def shutdown() {

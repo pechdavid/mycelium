@@ -29,14 +29,14 @@ class ModuleLifecycle extends FlatSpec with ShouldMatchers {
     Thread.sleep(500)
 
     queue.size() should be(2)
-    queue.removeLast().msg should be(PostInitialize)
-    queue.removeLast().msg should be(StartModule)
+    queue.removeFirst().msg should be(PostInitialize)
+    queue.removeFirst().msg should be(StartModule)
 
     node.shutdown()
 
     queue.size() should be(2)
-    queue.removeLast().msg should be(StopModule)
-    queue.removeLast().msg should be(PostStop)
+    queue.removeFirst().msg should be(StopModule)
+    queue.removeFirst().msg should be(PostStop)
   }
 
   it should "Return error message after timeout" in {
@@ -51,8 +51,8 @@ class ModuleLifecycle extends FlatSpec with ShouldMatchers {
     Thread.sleep(100)
 
     queue.size() should be(2)
-    queue.removeLast().msg should be(PostInitialize)
-    queue.removeLast().msg should be(DependencyNotOnline("B"))
+    queue.removeFirst().msg should be(PostInitialize)
+    queue.removeFirst().msg should be(DependencyNotOnline("B"))
 
     node.shutdown()
   }

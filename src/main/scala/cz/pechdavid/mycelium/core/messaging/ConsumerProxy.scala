@@ -1,34 +1,24 @@
-package cz.pechdavid.mycelium.core.module
+package cz.pechdavid.mycelium.core.messaging
 
-import akka.actor.{ActorRef, Actor}
 import akka.amqp.{Delivery, QueueBinding, CreateChannel, AmqpExtension}
 import akka.util.Timeout
-import net.liftweb.json.{DefaultFormats, JsonParser}
-import concurrent.ExecutionContext
 import scala.concurrent.duration._
 import akka.amqp.ChannelActor.{Consumer, Publisher}
 import akka.pattern.ask
+import concurrent.ExecutionContext
+import net.liftweb.json.{JsonParser, DefaultFormats}
+import akka.actor.{Actor, ActorRef}
+import cz.pechdavid.mycelium.core.module.ModuleRef
 
 /**
- * Created: 2/10/13 2:36 PM
+ * Created: 2/17/13 8:17 PM
  */
-trait ProduceConsumeActor extends Actor {
-
+trait ConsumerProxy extends ProducerProxy with ModuleRef {
   val conn = AmqpExtension(context.system).connectionActor
 
   implicit val timeout = Timeout(20 seconds)
   implicit val ec = ExecutionContext.global
   implicit val formats = DefaultFormats
-
-  val prod = (conn ? CreateChannel()).mapTo[ActorRef]
-  prod.onFailure {
-    case t =>
-      throw new Exception("Unable to create channel")
-  }
-  prod.onSuccess {
-    case ch: ActorRef =>
-      ch ! Publisher()
-  }
 
   val cons = conn ? CreateChannel()
   cons.onFailure {

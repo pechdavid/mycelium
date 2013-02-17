@@ -8,6 +8,8 @@ import cz.pechdavid.mycelium.core.module.ModuleSpec
 class DependencyLinearizer(availableModules: Set[ModuleSpec]) {
   def calculate(running: Set[String], desired: List[String]): List[String] = {
     // FIXME: HERE
-    desired
+    (availableModules.map {
+      _.name
+    } ++ desired).toSet.toList
   }
 }

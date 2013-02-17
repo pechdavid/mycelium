@@ -4,12 +4,13 @@ package cz.pechdavid.mycelium.core.module
  * Created: 2/15/13 5:50 PM
  */
 
-case class PostInitialize(args: Option[AnyRef] = None)
-case object StartModule
-case object StopModule
-case object PostStop
-case object RecoverModule
-case class DependencyNotOnline(name: String)
+sealed trait ControlMessage
+case class PostInitialize(args: Option[AnyRef] = None) extends ControlMessage
+case object StartModule extends ControlMessage
+case object StopModule extends ControlMessage
+case object PostStop extends ControlMessage
+case object RecoverModule extends ControlMessage
+case class DependencyNotOnline(name: String) extends ControlMessage
 
 case class EventSubscribe(key: String)
 case class EventOccured(key: String)

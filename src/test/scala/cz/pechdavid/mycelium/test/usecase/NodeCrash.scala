@@ -34,8 +34,8 @@ class NodeCrash extends FlatSpec with ShouldMatchers {
     Thread.sleep(100)
 
     queue.size() should be(2)
-    queue.removeLast().msg should be(PostInitialize)
-    queue.removeLast().msg should be(StartModule)
+    queue.removeFirst().msg should be(PostInitialize)
+    queue.removeFirst().msg should be(StartModule)
 
     nodeB.shutdown()
 
@@ -51,7 +51,7 @@ class NodeCrash extends FlatSpec with ShouldMatchers {
     Thread.sleep(100)
 
     queue.size() should be(1)
-    queue.removeLast().msg should be(RecoverModule)
+    queue.removeFirst().msg should be(RecoverModule)
 
     nodeA.shutdown()
     nodeC.shutdown()
