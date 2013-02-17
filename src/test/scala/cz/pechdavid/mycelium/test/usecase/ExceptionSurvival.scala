@@ -41,15 +41,19 @@ class ExceptionSurvival extends FlatSpec with ShouldMatchers {
 
     queue.clear()
 
-    val ref = system.system.actorFor("A")
+    val ref = system.moduleRef("A")
 
     ref ! CorrectMessage
+
+    Thread.sleep(500)
 
     queue.removeLast().msg should be(CorrectMessage)
 
     ref ! ThrowExceptionCausingRestart
 
     ref ! CorrectMessage
+
+    Thread.sleep(500)
 
     queue.removeLast().msg should be(CorrectMessage)
     queue.size() should be(0)

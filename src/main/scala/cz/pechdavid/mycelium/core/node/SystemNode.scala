@@ -85,6 +85,8 @@ class SystemNode {
       ordered =>
         val ord = ordered
         moduleLifecycle.start(ord, supervisor)
+
+        localRunning += ord
     }
 
     // FIXME: launch other deps
@@ -117,6 +119,10 @@ class SystemNode {
     status.map {
       _.running
     }.flatten
+  }
+
+  def moduleRef(name: String) = {
+    system.actorFor("/user/supervisor/" + name)
   }
 
   def shutdown() {

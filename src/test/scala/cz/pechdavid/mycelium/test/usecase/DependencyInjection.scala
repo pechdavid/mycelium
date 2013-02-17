@@ -14,24 +14,31 @@ import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class DependencyInjection extends FlatSpec with ShouldMatchers {
 
-  class TstA extends  Actor {
-    def receive = ???
+  class TstA extends Actor {
+    def receive = {
+      case _: AnyRef =>
+      // pass
+    }
   }
 
-  class TstB extends  Actor {
-    def receive = ???
+  class TstB extends Actor {
+    def receive = {
+      case _: AnyRef =>
+      // pass
+    }
   }
 
   it should "Boot env" in {
     val node = new SystemNode
 
-    node.registerProps(Map("A" -> ((_) => Props[TstA]),
-      "B" -> ((_) => Props[TstB])))
+    node.registerProps(Map("A" -> ((_) => Props(new TstA)),
+      "B" -> ((_) => Props(new TstB))))
 
     node.boot(Set(
       ModuleSpec("A", Set.empty),
       ModuleSpec("B", Set("A"))), List(ModuleProps("B", None)))
 
+    Thread.sleep(2000)
 
     node.globalRunning should be(Set("A", "B"))
   }
