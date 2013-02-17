@@ -4,7 +4,7 @@ package cz.pechdavid.mycelium.core.module
  * Created: 2/15/13 5:50 PM
  */
 
-case object PostInitialize
+case class PostInitialize(args: Option[AnyRef] = None)
 case object StartModule
 case object StopModule
 case object PostStop

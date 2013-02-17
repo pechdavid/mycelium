@@ -30,7 +30,7 @@ class DependencyInjection extends FlatSpec with ShouldMatchers {
 
     node.boot(Set(
       ModuleSpec("A", Set.empty),
-      ModuleSpec("B", Set("A"))), List(ModuleProps("B", Map.empty)))
+      ModuleSpec("B", Set("A"))), List(ModuleProps("B", None)))
 
 
     node.globalRunning should be(Set("A", "B"))

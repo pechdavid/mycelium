@@ -35,7 +35,7 @@ class ExceptionSurvival extends FlatSpec with ShouldMatchers {
     val queue = new LinkedBlockingDeque[TestActor.Message]()
 
     system.registerProps(Map("A" -> Props(new TrapActor(queue))))
-    system.boot(Set(ModuleSpec("A", Set.empty)), List(ModuleProps("A", Map.empty)))
+    system.boot(Set(ModuleSpec("A", Set.empty)), List(ModuleProps("A", None)))
 
     Thread.sleep(100)
 

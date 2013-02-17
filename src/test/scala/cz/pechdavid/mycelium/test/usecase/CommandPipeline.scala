@@ -67,8 +67,8 @@ class CommandPipeline extends FlatSpec with ShouldMatchers {
         ModuleSpec("inMemoryProjection", Set.empty)
       ),
       List(
-        ModuleProps("inMemoryProjection", Map.empty),
-        ModuleProps("myApp", Map.empty)
+        ModuleProps("inMemoryProjection", None),
+        ModuleProps("myApp", None)
       )
     )
 

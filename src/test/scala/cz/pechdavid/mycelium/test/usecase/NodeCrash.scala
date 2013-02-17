@@ -26,9 +26,9 @@ class NodeCrash extends FlatSpec with ShouldMatchers {
     val queue = new LinkedBlockingDeque[TestActor.Message]()
 
     nodeB.registerProps(Map("B" -> Props[EmptyActor]))
-    nodeB.boot(Set(ModuleSpec("B", Set.empty)), List(ModuleProps("B", Map.empty)))
+    nodeB.boot(Set(ModuleSpec("B", Set.empty)), List(ModuleProps("B", None)))
     nodeA.registerProps(Map("A" -> TestActor.props(queue)))
-    nodeA.boot(Set(ModuleSpec("A", Set("B"))), List(ModuleProps("A", Map.empty)))
+    nodeA.boot(Set(ModuleSpec("A", Set("B"))), List(ModuleProps("A", None)))
 
     Thread.sleep(100)
 
@@ -45,7 +45,7 @@ class NodeCrash extends FlatSpec with ShouldMatchers {
 
     val nodeC = new SystemNode
     nodeC.registerProps(Map("B" -> Props[EmptyActor]))
-    nodeC.boot(Set(ModuleSpec("B", Set.empty)), List(ModuleProps("B", Map.empty)))
+    nodeC.boot(Set(ModuleSpec("B", Set.empty)), List(ModuleProps("B", None)))
 
     Thread.sleep(100)
 

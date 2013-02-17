@@ -24,9 +24,9 @@ class ModuleLifecycle extends FlatSpec with ShouldMatchers {
     val queue = new LinkedBlockingDeque[TestActor.Message]()
 
     node.registerProps(Map("A" -> TestActor.props(queue)))
-    node.boot(Set(ModuleSpec("A", Set.empty)), List(ModuleProps("A", Map.empty)))
+    node.boot(Set(ModuleSpec("A", Set.empty)), List(ModuleProps("A", None)))
 
-    Thread.sleep(100)
+    Thread.sleep(500)
 
     queue.size() should be(2)
     queue.removeLast().msg should be(PostInitialize)
@@ -46,7 +46,7 @@ class ModuleLifecycle extends FlatSpec with ShouldMatchers {
 
     node.registerProps(Map("A" -> TestActor.props(queue)))
     // missing dep!
-    node.boot(Set(ModuleSpec("A", Set("B"))), List(ModuleProps("A", Map.empty)))
+    node.boot(Set(ModuleSpec("A", Set("B"))), List(ModuleProps("A", None)))
 
     Thread.sleep(100)
 

@@ -32,12 +32,12 @@ class DependencyLinearizerTest extends FlatSpec with ShouldMatchers {
       ModuleSpec("F", Set("E"))
     ))
 
-    liner.calculate(Set.empty, Set(ModuleProps("F", Map.empty))) should be(List("B", "E", "F"))
+    liner.calculate(Set.empty, List(ModuleProps("F", None))) should be(List("B", "E", "F"))
     liner.calculate(Set.empty,
-      Set(ModuleProps("F", Map.empty), ModuleProps("D", Map.empty))) should be(List("B", "E", "F", "A", "C", "D"))
+      List(ModuleProps("F", None), ModuleProps("D", None))) should be(List("B", "E", "F", "A", "C", "D"))
 
     liner.calculate(Set("E", "A"),
-      Set(ModuleProps("F", Map.empty), ModuleProps("D", Map.empty))) should be(List("B", "F", "C", "D"))
+      List(ModuleProps("F", None), ModuleProps("D", None))) should be(List("B", "F", "C", "D"))
   }
 
   it should "Throw cycle error" in {

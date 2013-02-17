@@ -33,7 +33,7 @@ class SeamlessCommunication extends FlatSpec with ShouldMatchers {
     system.registerProps(Map("A" -> Props[SendToB],
       "B" -> TestActor.props(queue)))
     system.boot(Set(ModuleSpec("A", Set("B")),
-      ModuleSpec("B", Set.empty)), List(ModuleProps("A", Map.empty)))
+      ModuleSpec("B", Set.empty)), List(ModuleProps("A", None)))
 
     sleepAndCheckQueue(queue)
 
@@ -48,10 +48,10 @@ class SeamlessCommunication extends FlatSpec with ShouldMatchers {
     val queue = new LinkedBlockingDeque[TestActor.Message]()
     systemB.registerProps(Map("B" -> TestActor.props(queue)))
 
-    systemB.boot(Set(ModuleSpec("B", Set.empty)), List(ModuleProps("B", Map.empty)))
+    systemB.boot(Set(ModuleSpec("B", Set.empty)), List(ModuleProps("B", None)))
 
     systemA.registerProps(Map("A" -> Props[SendToB]))
-    systemA.boot(Set(ModuleSpec("A", Set("B"))), List(ModuleProps("A", Map.empty)))
+    systemA.boot(Set(ModuleSpec("A", Set("B"))), List(ModuleProps("A", None)))
 
     sleepAndCheckQueue(queue)
 
@@ -77,10 +77,10 @@ class SeamlessCommunication extends FlatSpec with ShouldMatchers {
 
     // opposite order!
     systemA.registerProps(Map("A" -> Props[SendToB]))
-    systemA.boot(Set(ModuleSpec("A", Set("B"))), List(ModuleProps("A", Map.empty)))
+    systemA.boot(Set(ModuleSpec("A", Set("B"))), List(ModuleProps("A", None)))
 
     systemB.registerProps(Map("B" -> TestActor.props(queue)))
-    systemB.boot(Set(ModuleSpec("B", Set.empty)), List(ModuleProps("B", Map.empty)))
+    systemB.boot(Set(ModuleSpec("B", Set.empty)), List(ModuleProps("B", None)))
 
     sleepAndCheckQueue(queue)
 

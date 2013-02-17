@@ -37,9 +37,9 @@ class NodeCommunication extends FlatSpec with ShouldMatchers {
     nodeB.registerProps(allMods)
     nodeC.registerProps(allMods)
 
-    nodeA.boot(spec, List(ModuleProps("A", Map.empty)))
-    nodeB.boot(spec, List(ModuleProps("B", Map.empty)))
-    nodeC.boot(spec, List(ModuleProps("C", Map.empty)))
+    nodeA.boot(spec, List(ModuleProps("A", None)))
+    nodeB.boot(spec, List(ModuleProps("B", None)))
+    nodeC.boot(spec, List(ModuleProps("C", None)))
 
     Thread.sleep(100)
 
