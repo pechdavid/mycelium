@@ -53,12 +53,14 @@ dependencies {
 	compile "org.slf4j:jcl-over-slf4j:1.7.2"
 
 	compile "com.github.cessationoftime:akka-amqp_2.10:2.2-SNAPSHOT"
+	compile "net.liftweb:lift-json_2.10:2.5-M4"
 
 	compile 'junit:junit:4.11'
 	compile "org.scalatest:scalatest_2.10.0:2.0.M5"
 	runtime "ch.qos.logback:logback-classic:1.0.9"
 
 	compile "com.typesafe.akka:akka-actor_2.10:2.1.0"
+	compile "com.typesafe.akka:akka-slf4j_2.10:2.1.0"
 	testCompile "com.typesafe.akka:akka-testkit_2.10:2.1.0"
 
 	testCompile "junit:junit:4.11"

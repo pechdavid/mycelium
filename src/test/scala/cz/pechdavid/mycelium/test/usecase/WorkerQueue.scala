@@ -12,7 +12,7 @@ import org.scalatest.junit.JUnitRunner
 class WorkerQueue extends FlatSpec with ShouldMatchers {
 
   it should "Register separate node and receive messages over it" in {
-    // FIXME: HERE
+    ???
   }
 
 }

@@ -15,7 +15,7 @@ class LauncherTest extends FlatSpec with ShouldMatchers {
   it should "Launch application with default config" in {
     Launcher.main(Array.empty)
 
-    // FIXME: HERE
+    ???
   }
 
 }

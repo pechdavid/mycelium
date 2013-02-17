@@ -12,7 +12,7 @@ import org.scalatest.junit.JUnitRunner
 class SimpleDomain extends FlatSpec with ShouldMatchers {
 
   it should "Show trivial domain object example" in {
-    // FIXME: HERE
+    ???
   }
 
 }

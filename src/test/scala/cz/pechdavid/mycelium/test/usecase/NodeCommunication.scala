@@ -16,11 +16,11 @@ import org.scalatest.junit.JUnitRunner
 class NodeCommunication extends FlatSpec with ShouldMatchers {
 
   it should "Simulate node interactions" in {
-    // FIXME: HERE
+    ???
   }
 
   it should "Start multiple workers when other fails" in {
-    // FIXME: HERE
+    ???
   }
 
   it should "Be variable about node run list" in {
