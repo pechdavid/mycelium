@@ -1,14 +1,15 @@
 package cz.pechdavid.mycelium.core.node
 
 import akka.amqp._
-import cz.pechdavid.mycelium.core.module.ModuleProxy
+import cz.pechdavid.mycelium.core.module.ProduceConsumeActor
 import scala.concurrent.duration._
 
 /**
  * Created: 2/17/13 12:31 PM
  */
-class StatusUpdater(node: SystemNode) extends ModuleProxy {
+class StatusUpdater(node: SystemNode) extends ProduceConsumeActor {
 
+  case object SchedulerTick
   context.system.scheduler.schedule(0 second, 500 millisecond, context.self, SchedulerTick)
 
   def receive = {

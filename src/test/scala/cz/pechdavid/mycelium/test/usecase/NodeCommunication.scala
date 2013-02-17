@@ -29,7 +29,7 @@ class NodeCommunication extends FlatSpec with ShouldMatchers {
     val nodeB = new SystemNode
     val nodeC = new SystemNode
 
-    val allMods = Map("A" -> Props[EmptyActor], "B" -> Props[EmptyActor], "C" -> Props[EmptyActor])
+    val allMods = Map("A" -> ((_: ModuleProps) => Props[EmptyActor]), "B" -> ((_: ModuleProps) => Props[EmptyActor]), "C" -> ((_: ModuleProps) => Props[EmptyActor]))
 
     val spec = Set(ModuleSpec("A", Set.empty), ModuleSpec("B", Set.empty), ModuleSpec("C", Set.empty))
 

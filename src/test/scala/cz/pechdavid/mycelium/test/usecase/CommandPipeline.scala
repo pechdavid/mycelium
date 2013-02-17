@@ -54,10 +54,10 @@ class CommandPipeline extends FlatSpec with ShouldMatchers {
     val lst = mutable.MutableList.empty[String]
 
     val system = new SystemNode
-    system.registerProps(Map("eventBus" -> Props[EventBus],
-      "commandBus" -> Props[CommandBus],
-      "myApp" -> Props[MyApp],
-      "inMemoryProjection" -> Props(new InMemoryProjection(lst))))
+    system.registerProps(Map("eventBus" -> ((_) => Props[EventBus]),
+      "commandBus" -> ((_) => Props[CommandBus]),
+      "myApp" -> ((_) => Props[MyApp]),
+      "inMemoryProjection" -> ((_) => Props(new InMemoryProjection(lst)))))
 
     system.boot(
       Set(

@@ -12,6 +12,7 @@ import cz.pechdavid.mycelium.core.module.DependencyNotOnline
 import akka.actor.{Props, Actor}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import org.specs2.internal.scalaz.Digit._0
 
 /**
  * Created: 2/15/13 6:10 PM
@@ -25,9 +26,9 @@ class NodeCrash extends FlatSpec with ShouldMatchers {
     val nodeB = new SystemNode
     val queue = new LinkedBlockingDeque[TestActor.Message]()
 
-    nodeB.registerProps(Map("B" -> Props[EmptyActor]))
+    nodeB.registerProps(Map("B" -> ((_) => Props[EmptyActor])))
     nodeB.boot(Set(ModuleSpec("B", Set.empty)), List(ModuleProps("B", None)))
-    nodeA.registerProps(Map("A" -> TestActor.props(queue)))
+    nodeA.registerProps(Map("A" -> ((_) => TestActor.props(queue))))
     nodeA.boot(Set(ModuleSpec("A", Set("B"))), List(ModuleProps("A", None)))
 
     Thread.sleep(100)
@@ -44,7 +45,7 @@ class NodeCrash extends FlatSpec with ShouldMatchers {
     queue.removeLast().msg should be(DependencyNotOnline("B"))
 
     val nodeC = new SystemNode
-    nodeC.registerProps(Map("B" -> Props[EmptyActor]))
+    nodeC.registerProps(Map("B" -> ((_) => Props[EmptyActor])))
     nodeC.boot(Set(ModuleSpec("B", Set.empty)), List(ModuleProps("B", None)))
 
     Thread.sleep(100)

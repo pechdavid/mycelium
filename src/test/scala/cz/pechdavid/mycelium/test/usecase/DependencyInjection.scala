@@ -25,8 +25,8 @@ class DependencyInjection extends FlatSpec with ShouldMatchers {
   it should "Boot env" in {
     val node = new SystemNode
 
-    node.registerProps(Map("A" -> Props[TstA],
-      "B" -> Props[TstB]))
+    node.registerProps(Map("A" -> ((_) => Props[TstA]),
+      "B" -> ((_) => Props[TstB])))
 
     node.boot(Set(
       ModuleSpec("A", Set.empty),

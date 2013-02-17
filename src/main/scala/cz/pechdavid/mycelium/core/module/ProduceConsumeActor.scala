@@ -12,7 +12,7 @@ import akka.pattern.ask
 /**
  * Created: 2/10/13 2:36 PM
  */
-abstract class ModuleProxy extends Actor {
+trait ProduceConsumeActor extends Actor {
 
   val conn = AmqpExtension(context.system).connectionActor
 
@@ -40,18 +40,10 @@ abstract class ModuleProxy extends Actor {
       ch ! Consumer(context.self, true, bindings)
   }
 
-  case object SchedulerTick
-
-  context.system.scheduler.schedule(0 second, 500 millisecond, context.self, SchedulerTick)
-
   def bindings(): Seq[QueueBinding]
 
   def parseDelivery(del: Delivery) = {
     val inp = new String(del.payload, "utf-8")
     JsonParser.parse(inp)
   }
-
-
-
-
 }

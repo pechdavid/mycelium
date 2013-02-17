@@ -9,6 +9,7 @@ import akka.testkit.TestActor
 import java.util.concurrent.LinkedBlockingDeque
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import org.specs2.internal.scalaz.Digit._0
 
 /**
  * Created: 2/15/13 6:10 PM
@@ -30,8 +31,8 @@ class SeamlessCommunication extends FlatSpec with ShouldMatchers {
 
     val queue = new LinkedBlockingDeque[TestActor.Message]()
 
-    system.registerProps(Map("A" -> Props[SendToB],
-      "B" -> TestActor.props(queue)))
+    system.registerProps(Map("A" -> ((_) => Props[SendToB]),
+      "B" -> ((_) => TestActor.props(queue))))
     system.boot(Set(ModuleSpec("A", Set("B")),
       ModuleSpec("B", Set.empty)), List(ModuleProps("A", None)))
 
@@ -46,11 +47,11 @@ class SeamlessCommunication extends FlatSpec with ShouldMatchers {
     val systemB = new SystemNode
 
     val queue = new LinkedBlockingDeque[TestActor.Message]()
-    systemB.registerProps(Map("B" -> TestActor.props(queue)))
+    systemB.registerProps(Map("B" -> ((_) => TestActor.props(queue))))
 
     systemB.boot(Set(ModuleSpec("B", Set.empty)), List(ModuleProps("B", None)))
 
-    systemA.registerProps(Map("A" -> Props[SendToB]))
+    systemA.registerProps(Map("A" -> ((_) => Props[SendToB])))
     systemA.boot(Set(ModuleSpec("A", Set("B"))), List(ModuleProps("A", None)))
 
     sleepAndCheckQueue(queue)
@@ -76,10 +77,10 @@ class SeamlessCommunication extends FlatSpec with ShouldMatchers {
     val queue = new LinkedBlockingDeque[TestActor.Message]()
 
     // opposite order!
-    systemA.registerProps(Map("A" -> Props[SendToB]))
+    systemA.registerProps(Map("A" -> ((_) => Props[SendToB])))
     systemA.boot(Set(ModuleSpec("A", Set("B"))), List(ModuleProps("A", None)))
 
-    systemB.registerProps(Map("B" -> TestActor.props(queue)))
+    systemB.registerProps(Map("B" -> ((_) => TestActor.props(queue))))
     systemB.boot(Set(ModuleSpec("B", Set.empty)), List(ModuleProps("B", None)))
 
     sleepAndCheckQueue(queue)
