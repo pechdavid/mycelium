@@ -24,9 +24,9 @@ class NodeAutodiscovery extends FlatSpec with ShouldMatchers {
 
     Thread.sleep(500)
 
-    systemA.onlineNodes.size should be(3)
-    systemB.onlineNodes.size should be(3)
-    systemC.onlineNodes.size should be(3)
+    systemA.globalNodes.size should be(3)
+    systemB.globalNodes.size should be(3)
+    systemC.globalNodes.size should be(3)
   }
 
 }

@@ -7,11 +7,12 @@ import akka.actor.{Props, ActorSystem}
  * Created: 2/15/13 5:53 PM
  */
 class SystemNode {
-  def onlineNodes: Set[Long] = ???
+  def globalNodes: Set[Long] = ???
 
   val system = ActorSystem.create()
 
   // FIXME: ping to assign number + name
+  // FIXME: local shortcut for delivery
 
 
   def registerProps(map: Map[String, Props]) {
@@ -23,7 +24,9 @@ class SystemNode {
     ???
   }
 
-  def running: Set[String] = ???
+  def globalRunning: Set[String] = ???
+
+  def localRunning: Set[String] = ???
 
   def shutdown() {
     system.shutdown()

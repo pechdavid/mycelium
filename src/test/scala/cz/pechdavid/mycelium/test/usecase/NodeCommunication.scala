@@ -19,6 +19,10 @@ class NodeCommunication extends FlatSpec with ShouldMatchers {
     // FIXME: HERE
   }
 
+  it should "Start multiple workers when other fails" in {
+    // FIXME: HERE
+  }
+
   it should "Be variable about node run list" in {
     // FIXME: start with lower ping timeout
     val nodeA = new SystemNode
@@ -39,28 +43,28 @@ class NodeCommunication extends FlatSpec with ShouldMatchers {
 
     Thread.sleep(100)
 
-    nodeA.onlineNodes.size should be(3)
-    nodeA.running should be(Set("A", "B", "C"))
-    nodeB.onlineNodes.size should be(3)
-    nodeB.running should be(Set("A", "B", "C"))
-    nodeC.onlineNodes.size should be(3)
-    nodeC.running should be(Set("A", "B", "C"))
+    nodeA.globalNodes.size should be(3)
+    nodeA.globalRunning should be(Set("A", "B", "C"))
+    nodeB.globalNodes.size should be(3)
+    nodeB.globalRunning should be(Set("A", "B", "C"))
+    nodeC.globalNodes.size should be(3)
+    nodeC.globalRunning should be(Set("A", "B", "C"))
 
     nodeA.shutdown()
 
     Thread.sleep(100)
 
-    nodeB.onlineNodes.size should be(2)
-    nodeB.running should be(Set("A", "B", "C"))
-    nodeC.onlineNodes.size should be(2)
-    nodeC.running should be(Set("A", "B", "C"))
+    nodeB.globalNodes.size should be(2)
+    nodeB.globalRunning should be(Set("A", "B", "C"))
+    nodeC.globalNodes.size should be(2)
+    nodeC.globalRunning should be(Set("A", "B", "C"))
 
     nodeC.shutdown()
 
     Thread.sleep(100)
 
-    nodeB.onlineNodes.size should be(1)
-    nodeB.running should be(Set("A", "B", "C"))
+    nodeB.globalNodes.size should be(1)
+    nodeB.globalRunning should be(Set("A", "B", "C"))
 
     nodeB.shutdown()
   }
