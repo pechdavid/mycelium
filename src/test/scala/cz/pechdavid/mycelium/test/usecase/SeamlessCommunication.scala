@@ -36,6 +36,8 @@ class SeamlessCommunication extends FlatSpec with ShouldMatchers {
   class SendToB extends ProducerModule("A") {
     def handle = {
       case StartModule =>
+        Thread.sleep(500)
+
         moduleRef("B") ! TstMessage("hello")
     }
   }

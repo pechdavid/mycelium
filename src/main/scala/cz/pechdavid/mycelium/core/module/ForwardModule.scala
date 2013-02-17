@@ -13,6 +13,5 @@ class ForwardModule(name: String) extends ProducerProxy {
 
     case other: AnyRef =>
       producerRef ! PublishToExchange(Message(other, name), "worker")
-
   }
 }

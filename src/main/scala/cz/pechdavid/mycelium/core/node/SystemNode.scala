@@ -1,7 +1,7 @@
 package cz.pechdavid.mycelium.core.node
 
 import cz.pechdavid.mycelium.core.module._
-import akka.actor.{ActorRef, Props, ActorSystem}
+import akka.actor.{Props, ActorSystem}
 import akka.amqp.{Connect, AmqpExtension}
 import cz.pechdavid.mycelium.core.operator.DependencyLinearizer
 import cz.pechdavid.mycelium.core.module.ModuleProps
@@ -40,6 +40,26 @@ class SystemNode {
     moduleLaunch = map
   }
 
+  def createProxies(run: List[ModuleProps]) {
+    val allPossible = localAvailable.map {
+      _.requirements
+    }.flatten ++ run.map {
+      _.name
+    }.toSet
+
+    val locals = localRunning ++ localAvailable.map {
+      _.name
+    }.toSet
+
+    val remote = allPossible--locals
+
+    // FIXME: only really required
+    remote.foreach {
+      name =>
+        supervisor ! StartNewModule(name, Props(new ForwardModule(name)))
+    }
+  }
+
   def boot(specs: Set[ModuleSpec], run: List[ModuleProps]) {
     localAvailable ++= specs
 
@@ -49,6 +69,9 @@ class SystemNode {
     })
 
     // FIXME: missing deps
+
+    // FIXME: only required
+    createProxies(run)
 
     correctOrder.foreach {
       ordered =>
