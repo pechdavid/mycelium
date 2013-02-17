@@ -35,6 +35,7 @@ mainClassName = "cz.pechdavid.mycelium"
 
 apply plugin: 'java'
 apply plugin: 'scala'
+apply plugin: 'project-report'
 
 configurations {
 	all*.exclude group: "commons-logging", module: "commons-logging"
@@ -54,6 +55,8 @@ dependencies {
 
 	compile "com.typesafe.akka:akka-actor_2.10:2.1.0"
 	testCompile "com.typesafe.akka:akka-testkit_2.10:2.1.0"
+
+	testCompile "junit:junit:4.11"
 	
 	// Libraries needed to run the scala tools
 	scalaTools 'org.scala-lang:scala-compiler:2.10.0'
@@ -70,9 +73,73 @@ task wrapper(type: Wrapper) {
 		gradleVersion = '1.4'
 }
 
-test << {
-	ant.taskdef(name: 'scalatest', classname: 'org.scalatest.tools.ScalaTestAntTask', classpath: classpath.asPath)
-	ant.scalatest(runpath: testClassesDir, haltonfailure: 'false', fork: 'false') {
-		reporter(type: 'stdout')
+task testScala(overwrite: true, dependsOn: testClasses) << {
+    ant.taskdef(name: 'scalatest',
+        classname: 'org.scalatest.tools.ScalaTestAntTask',
+        classpath: sourceSets.test.runtimeClasspath.asPath
+    )
+    ant.scalatest(runpath: sourceSets.test.output.classesDir,
+        haltonfailure: 'false',
+				maxmemory: '1024M',
+				parallel: '1',
+				numthreads: '1',
+        fork: 'true')
+}
+
+test {
+	dependsOn 'testScala'
+	jvmArgs '-Xmx1024m', '-Xms256m', '-XX:MaxPermSize=1024m'
+	testReport = false
+	ignoreFailures = true
+}
+
+
+idea {
+	module {
+		downloadJavadoc = false
+		outputDir = "$rootProject.projectDir/intellij/out" as File
+		testOutputDir = "$rootProject.projectDir/intellij/testOut" as File
+	}
+
+	project {
+		jdkName = '1.7'
+		languageLevel = '1.7'
+
+		ipr {
+			withXml {
+				def xmlRoot = it.asNode()
+
+				def properties = xmlRoot.component.find { it.@name == 'Encoding' }
+				properties.@useUTFGuessing = 'true'
+				properties.@native2AsciiForPropertiesFiles = 'true'
+
+				def vcsMappings = xmlRoot.component.find { it.@name == 'VcsDirectoryMappings' }
+				vcsMappings.mapping.@vcs = 'Git'
+				vcsMappings.mapping.@directory = '$PROJECT_DIR$/'
+			}
+		}
+	}
+
+	workspace {
+		iws {
+			withXml { provider ->
+				def component = provider.node.component.find { it.@name == 'RunManager' }
+				
+				component.configuration.find { it.@type == "JUnit" }.option.find { it.@name == 'WORKING_DIRECTORY' }.@value = 'file://$PROJECT_DIR$/'
+
+				def launcherEl = component.configuration.find { it.@name == "Launcher" }
+
+				if (launcherEl == null) {
+					def launcherConfiguration = new NodeBuilder().configuration(default: false, name: "Launcher", type: "Application", factoryName: "Application") {
+						option(name:"MAIN_CLASS_NAME", value:"cz.pechdavid.mycelium.Launcher")
+						option(name:"VM_PARAMETERS", value:"-XX:MaxPermSize=256m -Xmx512m")
+						option(name:"PROGRAM_PARAMETERS", value:"--config application.conf")
+						option(name:"WORKING_DIRECTORY", value:'file://$PROJECT_DIR$/')
+						module(name:"cz.pechdavid.mycelium")
+					}
+					component.append(launcherConfiguration)
+				}
+			}
+		}
 	}
 }

@@ -10,10 +10,13 @@ import cz.pechdavid.mycelium.core.module.ModuleSpec
 import cz.pechdavid.mycelium.core.module.ModuleProps
 import cz.pechdavid.mycelium.core.module.DependencyNotOnline
 import akka.actor.{Props, Actor}
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
 /**
  * Created: 2/15/13 6:10 PM
  */
+@RunWith(classOf[JUnitRunner])
 class NodeCrash extends FlatSpec with ShouldMatchers {
 
   it should "Return error message after timeout and recover" in {

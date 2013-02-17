@@ -7,10 +7,13 @@ import cz.pechdavid.mycelium.core.module.{ModuleProps, ModuleSpec}
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
 import akka.actor.{Props, Actor}
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
 /**
  * Created: 2/15/13 6:14 PM
  */
+@RunWith(classOf[JUnitRunner])
 class ExceptionSurvival extends FlatSpec with ShouldMatchers {
 
   case object ThrowExceptionCausingRestart

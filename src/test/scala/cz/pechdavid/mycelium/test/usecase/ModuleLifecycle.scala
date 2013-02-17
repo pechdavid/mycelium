@@ -9,10 +9,13 @@ import java.util.concurrent.LinkedBlockingDeque
 import cz.pechdavid.mycelium.core.module._
 import cz.pechdavid.mycelium.core.module.ModuleSpec
 import cz.pechdavid.mycelium.core.module.ModuleProps
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
 /**
  * Created: 2/15/13 6:50 PM
  */
+@RunWith(classOf[JUnitRunner])
 class ModuleLifecycle extends FlatSpec with ShouldMatchers {
 
   it should "Demonstrate lifecycle" in {

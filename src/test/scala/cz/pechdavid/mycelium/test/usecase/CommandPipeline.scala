@@ -8,10 +8,13 @@ import cz.pechdavid.mycelium.core.node.SystemNode
 import cz.pechdavid.mycelium.core.module.{ModuleProps, ModuleSpec, StartModule}
 import cz.pechdavid.mycelium.core.command.{CommandHandler, RegisterCommandHandler, CommandBus}
 import cz.pechdavid.mycelium.core.event.{EventHandler, RegisterEventHandler, EventBus}
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
 /**
  * Created: 2/15/13 6:11 PM
  */
+@RunWith(classOf[JUnitRunner])
 class CommandPipeline extends FlatSpec with ShouldMatchers {
 
   case class MyCommand(name: String)

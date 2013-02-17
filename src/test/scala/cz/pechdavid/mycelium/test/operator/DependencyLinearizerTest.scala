@@ -5,10 +5,13 @@ import org.scalatest.matchers.ShouldMatchers
 import cz.pechdavid.mycelium.core.module
 import cz.pechdavid.mycelium.core.operator.DependencyLinearizer
 import module.{ModuleSpec, ModuleProps}
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
 /**
  * Created: 2/15/13 6:14 PM
  */
+@RunWith(classOf[JUnitRunner])
 class DependencyLinearizerTest extends FlatSpec with ShouldMatchers {
 
   /*

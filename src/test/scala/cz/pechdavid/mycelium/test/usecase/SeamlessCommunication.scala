@@ -7,10 +7,13 @@ import akka.actor.{Props, Actor}
 import cz.pechdavid.mycelium.core.module.{PostInitialize, ModuleProps, ModuleSpec, StartModule}
 import akka.testkit.TestActor
 import java.util.concurrent.LinkedBlockingDeque
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
 /**
  * Created: 2/15/13 6:10 PM
  */
+@RunWith(classOf[JUnitRunner])
 class SeamlessCommunication extends FlatSpec with ShouldMatchers {
 
   case object TstMessage

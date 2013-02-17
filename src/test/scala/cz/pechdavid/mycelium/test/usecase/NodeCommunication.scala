@@ -6,10 +6,13 @@ import cz.pechdavid.mycelium.core.node.SystemNode
 import akka.actor.Props
 import cz.pechdavid.mycelium.core.module.ModuleProps
 import cz.pechdavid.mycelium.core.module.ModuleSpec
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
 /**
  * Created: 2/15/13 6:10 PM
  */
+@RunWith(classOf[JUnitRunner])
 class NodeCommunication extends FlatSpec with ShouldMatchers {
 
   it should "Simulate node interactions" in {
