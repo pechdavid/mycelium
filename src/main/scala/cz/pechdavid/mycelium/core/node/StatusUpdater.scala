@@ -10,13 +10,13 @@ import akka.amqp.CreateChannel
 import akka.amqp.ChannelActor.Publisher
 import akka.util.Timeout
 import concurrent.ExecutionContext
-import util.parsing.json.JSON
 import net.liftweb.json.{DefaultFormats, JsonParser}
+import cz.pechdavid.mycelium.core.module.ModuleSpec
 
 /**
  * Created: 2/17/13 12:31 PM
  */
-class StatusUpdater(status: AtomicReference[Set[NodeStatus]]) extends Actor {
+class StatusUpdater(node: SystemNode) extends Actor {
   val conn = AmqpExtension(context.system).connectionActor
 
   implicit val timeout = Timeout(20 seconds)
@@ -33,7 +33,7 @@ class StatusUpdater(status: AtomicReference[Set[NodeStatus]]) extends Actor {
   }
 
   val queue = Queue.default.active()
-  val exchange = Exchange.named("nodeUpdates").active("fanout")
+  val exchange = Exchange.named("nodeUpdates").active("fanout", true)
   val binding = exchange >> queue
 
   val cons = conn ? CreateChannel()
@@ -53,12 +53,18 @@ class StatusUpdater(status: AtomicReference[Set[NodeStatus]]) extends Actor {
   def receive = {
     case SchedulerTick =>
       prod.foreach {
-        _ ! PublishToExchange(Message("heelo", ""), "nodeUpdates", false)
+        _ ! PublishToExchange(Message(
+              NodeStatus(node.name,
+                node.localAvailable,
+                node.localRunning), ""), "nodeUpdates", false)
       }
 
     case del: Delivery =>
       implicit val formats = DefaultFormats
       val inp = new String(del.payload, "utf-8")
-      val str = JsonParser.parse(inp).extract[String]
+      val status = JsonParser.parse(inp).extract[NodeStatus]
+
+      val filtered = node.status.filter { _.name != status.name }
+      node.status = filtered ++ Set(status)
   }
 }

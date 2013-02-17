@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicReference
  * Created: 2/15/13 5:53 PM
  */
 class SystemNode {
+  val name = NodeName.random()
   val system = ActorSystem.create()
   var moduleLaunch = Map.empty[String, Props]
   val connection = AmqpExtension(system).connectionActor
@@ -17,9 +18,9 @@ class SystemNode {
 
   connection ! Connect
 
-  val status = new AtomicReference(Set.empty[NodeStatus])
+  var status = Set.empty[NodeStatus]
 
-  val updater = system.actorOf(Props(new StatusUpdater(status)))
+  val updater = system.actorOf(Props(new StatusUpdater(this)))
 
   // FIXME: ping to assign number + name
   // FIXME: local shortcut for delivery
@@ -35,7 +36,7 @@ class SystemNode {
   }
 
   def globalRunning: Set[String] = {
-    status.get().map {
+    status.map {
       _.running
     }.flatten
   }
@@ -45,7 +46,7 @@ class SystemNode {
   }
 
   def globalNodes: Set[String] = {
-    status.get() map {
+    status map {
       _.name
     }
   }

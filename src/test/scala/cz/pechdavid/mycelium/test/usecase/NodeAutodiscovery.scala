@@ -22,7 +22,7 @@ class NodeAutodiscovery extends FlatSpec with ShouldMatchers {
     systemB.boot(Set.empty, List.empty)
     systemC.boot(Set.empty, List.empty)
 
-    Thread.sleep(100000)
+    Thread.sleep(2000)
 
     systemA.globalNodes.size should be(3)
     systemB.globalNodes.size should be(3)
