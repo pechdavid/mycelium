@@ -24,6 +24,9 @@ allprojects {
 		maven {
 			url "http://repo.typesafe.com/typesafe/releases/"
 		}
+		maven {
+			url "http://repository-pechdavid.forge.cloudbees.com/snapshot/"
+		}
 	}
 }
 
@@ -48,6 +51,8 @@ configurations {
 dependencies {
 	compile "org.slf4j:slf4j-api:1.7.2"
 	compile "org.slf4j:jcl-over-slf4j:1.7.2"
+
+	compile "com.github.cessationoftime:akka-amqp_2.10:2.2-SNAPSHOT"
 
 	compile 'junit:junit:4.11'
 	compile "org.scalatest:scalatest_2.10.0:2.0.M5"
