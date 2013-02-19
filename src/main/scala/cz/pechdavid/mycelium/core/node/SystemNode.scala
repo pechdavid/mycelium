@@ -12,23 +12,19 @@ import cz.pechdavid.mycelium.core.messaging.Producer
 /**
  * Created: 2/15/13 5:53 PM
  */
-class SystemNode {
+class SystemNode(moduleLaunch: Map[String, (ModuleProps) => Props] = Map.empty) {
   val name = NodeName.random()
   val system = ActorSystem.create()
-  var moduleLaunch = Map.empty[String, (ModuleProps) => Props]
   val connection = AmqpExtension(system).connectionActor
-  var localRunning = Set.empty[String]
-  var localAvailable = Set.empty[ModuleSpec]
 
   connection ! Connect
 
-  var status = Set.empty[NodeStatus]
-
-  val moduleLifecycle = new ModuleLifecycle
+  val container = new ModuleContainer
 
   val updater = system.actorOf(Props(new StatusUpdater(this)), "status-updater")
   val supervisor = system.actorOf(Props(new ModuleSupervisor), "supervisor")
   val producer = system.actorOf(Props(new Producer), "producer")
+  val lifecycle = new ModuleLifecycle(supervisor)
 
   // FIXME: ping to assign number + name
   // FIXME: local shortcut for delivery
@@ -36,15 +32,16 @@ class SystemNode {
   // FIXME: shortcut for status
   // FIXME: depency watcher
 
-  def registerProps(map: Map[String, (ModuleProps) => Props]) {
-    moduleLaunch = map
-  }
+  def boot(specs: Set[ModuleSpec], run: List[ModuleProps], appendToRunList: Boolean = false) {
+    container.localAvailable ++= specs
 
-  def boot(specs: Set[ModuleSpec], run: List[ModuleProps]) {
-    localAvailable ++= specs
+    val completeRunList = container.runArgs ++ run
+    if (appendToRunList) {
+      container.runArgs = completeRunList
+    }
 
-    val linear = new DependencyLinearizer(globalAvailable)
-    val correctOrder = linear.calculate(globalRunning, run.map {
+    val linear = new DependencyLinearizer(container.globalAvailable)
+    val correctOrder = linear.calculate(container.globalRunning, completeRunList.map {
       _.name
     })
 
@@ -57,28 +54,54 @@ class SystemNode {
     correctOrder.foreach {
       ordered =>
         if (runNames.contains(ordered)) {
-          val lookup = lookupValues(run, ordered)
+          val lookup = lookupValues(completeRunList, ordered)
 
-          moduleLifecycle.create(ordered, lookup._2, lookup._1, supervisor)
+          lifecycle.create(ordered, lookup._2, lookup._1)
         } else {
-          moduleLifecycle.startProxy(ordered, supervisor)
+          lifecycle.startProxy(ordered)
         }
     }
 
     correctOrder.foreach {
       ordered =>
         if (runNames.contains(ordered)) {
-          moduleLifecycle.start(ordered, supervisor)
+          lifecycle.start(ordered)
 
-          localRunning += ordered
+          container.localRunning += ordered
         } else {
-          // proxy - pass
+          container.localProxy += ordered
         }
     }
   }
 
+  def replaceWithProxy(mod: String) {
+    lifecycle.stopSilently(mod)
+    lifecycle.startProxy(mod)
+    container.localProxy += mod
+    container.localRunning -= mod
+  }
 
-  def lookupValues(run: List[ModuleProps], ord: String): ((ModuleProps) => Props, ModuleProps) = {
+  def startNoRunList(mod: String) {
+    boot(Set.empty, List(ModuleProps(mod)), false)
+  }
+
+  def notifyAvailable(proxy: String) {
+    container.unavailable -= proxy
+    lifecycle.notifyAvailable(proxy, container.directRequiring(proxy))
+  }
+
+  def notifyUnavailable(proxy: String) {
+    container.unavailable += proxy
+    lifecycle.notifyUnavailable(proxy, container.directRequiring(proxy))
+  }
+
+  def replaceWithModule(proxy: String) {
+    lifecycle.stopSilently(proxy)
+    boot(Set.empty, List(ModuleProps(proxy)), false)
+  }
+
+
+  private def lookupValues(run: List[ModuleProps], ord: String): ((ModuleProps) => Props, ModuleProps) = {
     val props = run.dropWhile {
       ord != _.name
     }.headOption match {
@@ -94,32 +117,15 @@ class SystemNode {
     (launch, props)
   }
 
-  def globalAvailable: Set[ModuleSpec] = {
-    status.map {
-      _.available
-    }.flatten ++ localAvailable
-  }
-
-  def globalRunning: Set[String] = {
-    status.map {
-      _.running
-    }.flatten ++ localRunning
-  }
-
   def moduleRef(name: String) = {
     system.actorFor("/user/supervisor/" + name)
   }
 
   def shutdown() {
-    moduleLifecycle.stop(localAvailable, localRunning, supervisor)
+    lifecycle.stop(container.localAvailable, container.localRunning)
 
     system.shutdown()
   }
 
-  def globalNodes: Set[String] = {
-    status map {
-      _.name
-    }
-  }
 
 }

@@ -9,8 +9,8 @@ case class PostInitialize(args: Option[AnyRef] = None) extends ControlMessage
 case object StartModule extends ControlMessage
 case object StopModule extends ControlMessage
 case object PostStop extends ControlMessage
-case object RecoverModule extends ControlMessage
 case class DependencyNotOnline(name: String) extends ControlMessage
+case class DependencyOnline(name: String) extends ControlMessage
 
 case class EventSubscribe(key: String)
 case class EventOccured(key: String)

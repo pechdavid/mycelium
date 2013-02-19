@@ -20,19 +20,6 @@ import net.liftweb.json.JsonAST.JValue
 @RunWith(classOf[JUnitRunner])
 class SeamlessCommunication extends FlatSpec with ShouldMatchers {
 
-  case class TstMessage(cont: String)
-
-  class ConsumingTstModule(queue: LinkedBlockingDeque[TestActor.Message]) extends WorkerModule("B") {
-    def extract(parsedPayload: JValue) = {
-      parsedPayload.extract[TstMessage]
-    }
-
-    def handle = {
-      case msg: AnyRef =>
-        queue.add(TestActor.RealMessage(msg, sender))
-    }
-  }
-
   class SendToB extends ProducerModule("A") {
     def handle = {
       case StartModule =>
@@ -43,11 +30,10 @@ class SeamlessCommunication extends FlatSpec with ShouldMatchers {
   }
 
   it should "Work on the same node" in {
-    val system = new SystemNode
     val queue = new LinkedBlockingDeque[TestActor.Message]()
 
-    system.registerProps(Map("A" -> ((_) => Props(new SendToB)),
-      "B" -> ((_) => Props(new ConsumingTstModule(queue)))))
+    val system = new SystemNode(Map("A" -> ((_) => Props(new SendToB)),
+      "B" -> ((_) => Props(new ConsumingTstModule("B", queue)))))
     system.boot(Set(ModuleSpec("A", Set("B")),
       ModuleSpec("B", Set.empty)), List(ModuleProps("B", None), ModuleProps("A", None)))
 
@@ -60,15 +46,12 @@ class SeamlessCommunication extends FlatSpec with ShouldMatchers {
 
   it should "Seamlessly send messages" in {
 
-    val systemA = new SystemNode
-    val systemB = new SystemNode
-
     val queue = new LinkedBlockingDeque[TestActor.Message]()
-    systemB.registerProps(Map("B" -> ((_) => Props(new ConsumingTstModule(queue)))))
+    val systemB = new SystemNode(Map("B" -> ((_) => Props(new ConsumingTstModule("B", queue)))))
 
     systemB.boot(Set(ModuleSpec("B", Set.empty)), List(ModuleProps("B", None)))
 
-    systemA.registerProps(Map("A" -> ((_) => Props(new SendToB))))
+    val systemA = new SystemNode(Map("A" -> ((_) => Props(new SendToB))))
     systemA.boot(Set(ModuleSpec("A", Set("B"))), List(ModuleProps("A", None)))
 
     sleepAndCheckQueue(queue)
@@ -88,16 +71,14 @@ class SeamlessCommunication extends FlatSpec with ShouldMatchers {
   }
 
   it should "Seamlessly send messages in other order of registration" in {
-    val systemA = new SystemNode
-    val systemB = new SystemNode
 
     val queue = new LinkedBlockingDeque[TestActor.Message]()
 
     // opposite order!
-    systemA.registerProps(Map("A" -> ((_) => Props(new SendToB))))
+    val systemA = new SystemNode(Map("A" -> ((_) => Props(new SendToB))))
     systemA.boot(Set(ModuleSpec("A", Set("B"))), List(ModuleProps("A", None)))
 
-    systemB.registerProps(Map("B" -> ((_) => Props(new ConsumingTstModule(queue)))))
+    val systemB = new SystemNode(Map("B" -> ((_) => Props(new ConsumingTstModule("B", queue)))))
     systemB.boot(Set(ModuleSpec("B", Set.empty)), List(ModuleProps("B", None)))
 
     sleepAndCheckQueue(queue)

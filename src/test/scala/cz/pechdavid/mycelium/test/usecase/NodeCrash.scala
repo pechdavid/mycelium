@@ -22,16 +22,14 @@ class NodeCrash extends FlatSpec with ShouldMatchers {
 
   it should "Return error message after timeout and recover" in {
     // FIXME: start with lower ping timeout
-    val nodeA = new SystemNode
-    val nodeB = new SystemNode
     val queue = new LinkedBlockingDeque[TestActor.Message]()
 
-    nodeB.registerProps(Map("B" -> ((_) => Props[EmptyActor])))
+    val nodeB = new SystemNode(Map("B" -> ((_) => Props[EmptyActor])))
     nodeB.boot(Set(ModuleSpec("B", Set.empty)), List(ModuleProps("B", None)))
-    nodeA.registerProps(Map("A" -> ((_) => TestActor.props(queue))))
+    val nodeA = new SystemNode(Map("A" -> ((_) => TestActor.props(queue))))
     nodeA.boot(Set(ModuleSpec("A", Set("B"))), List(ModuleProps("A", None)))
 
-    Thread.sleep(100)
+    Thread.sleep(1000)
 
     queue.size() should be(2)
     queue.removeFirst().msg should be(PostInitialize)
@@ -39,22 +37,20 @@ class NodeCrash extends FlatSpec with ShouldMatchers {
 
     nodeB.shutdown()
 
-    Thread.sleep(100)
+    Thread.sleep(5000)
 
     queue.size() should be(1)
     queue.removeLast().msg should be(DependencyNotOnline("B"))
 
-    val nodeC = new SystemNode
-    nodeC.registerProps(Map("B" -> ((_) => Props[EmptyActor])))
+    val nodeC = new SystemNode(Map("B" -> ((_) => Props[EmptyActor])))
     nodeC.boot(Set(ModuleSpec("B", Set.empty)), List(ModuleProps("B", None)))
 
-    Thread.sleep(100)
+    Thread.sleep(2000)
 
     queue.size() should be(1)
-    queue.removeFirst().msg should be(RecoverModule)
+    queue.removeFirst().msg should be(DependencyOnline("B"))
 
     nodeA.shutdown()
     nodeC.shutdown()
   }
-
 }

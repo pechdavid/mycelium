@@ -29,9 +29,7 @@ class DependencyInjection extends FlatSpec with ShouldMatchers {
   }
 
   it should "Boot env" in {
-    val node = new SystemNode
-
-    node.registerProps(Map("A" -> ((_) => Props(new TstA)),
+    val node = new SystemNode(Map("A" -> ((_) => Props(new TstA)),
       "B" -> ((_) => Props(new TstB))))
 
     node.boot(Set(
@@ -40,6 +38,6 @@ class DependencyInjection extends FlatSpec with ShouldMatchers {
 
     Thread.sleep(2000)
 
-    node.globalRunning should be(Set("A", "B"))
+    node.container.globalRunning should be(Set("A", "B"))
   }
 }

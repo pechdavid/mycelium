@@ -20,10 +20,9 @@ class ModuleLifecycle extends FlatSpec with ShouldMatchers {
 
   it should "Demonstrate lifecycle" in {
 
-    val node = new SystemNode
     val queue = new LinkedBlockingDeque[TestActor.Message]()
 
-    node.registerProps(Map("A" -> ((_) => TestActor.props(queue))))
+    val node = new SystemNode(Map("A" -> ((_) => TestActor.props(queue))))
     node.boot(Set(ModuleSpec("A", Set.empty)), List(ModuleProps("A", None)))
 
     Thread.sleep(500)
@@ -41,10 +40,9 @@ class ModuleLifecycle extends FlatSpec with ShouldMatchers {
 
   it should "Return error message after timeout" in {
     // FIXME: start with lower timeout
-    val node = new SystemNode
     val queue = new LinkedBlockingDeque[TestActor.Message]()
 
-    node.registerProps(Map("A" -> ((_) => TestActor.props(queue))))
+    val node = new SystemNode(Map("A" -> ((_) => TestActor.props(queue))))
     // missing dep!
     node.boot(Set(ModuleSpec("A", Set("B"))), List(ModuleProps("A", None)))
 

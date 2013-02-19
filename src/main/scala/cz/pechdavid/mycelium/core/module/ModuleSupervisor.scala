@@ -10,10 +10,14 @@ class ModuleSupervisor extends ModuleRef {
 
   def receive = {
     case StartNewModule(name, props) =>
-
       context.actorOf(props, name)
 
     case Forward(name, msg) =>
       moduleRef(name) ! msg
+
+    case StopSilentlyModule(name) =>
+      context.stop(moduleRef(name))
+
+      Thread.sleep(10)
   }
 }

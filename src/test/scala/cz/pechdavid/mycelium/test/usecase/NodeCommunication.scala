@@ -15,56 +15,137 @@ import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class NodeCommunication extends FlatSpec with ShouldMatchers {
 
-  it should "Simulate node interactions" in {
-    ???
-  }
-
-  it should "Start multiple workers when other fails" in {
-    ???
-  }
-
-  it should "Be variable about node run list" in {
+  it should "Flexible keep the run list up" in {
     // FIXME: start with lower ping timeout
-    val nodeA = new SystemNode
-    val nodeB = new SystemNode
-    val nodeC = new SystemNode
 
     val allMods = Map("A" -> ((_: ModuleProps) => Props[EmptyActor]), "B" -> ((_: ModuleProps) => Props[EmptyActor]), "C" -> ((_: ModuleProps) => Props[EmptyActor]))
+    val nodeA = new SystemNode(allMods)
+    val nodeB = new SystemNode(allMods)
+    val nodeC = new SystemNode(allMods)
 
     val spec = Set(ModuleSpec("A", Set.empty), ModuleSpec("B", Set.empty), ModuleSpec("C", Set.empty))
 
-    nodeA.registerProps(allMods)
-    nodeB.registerProps(allMods)
-    nodeC.registerProps(allMods)
+    nodeA.boot(spec, List(ModuleProps("A"), ModuleProps("B"), ModuleProps("C")))
+    nodeB.boot(spec, List(ModuleProps("A"), ModuleProps("B"), ModuleProps("C")))
+    nodeC.boot(spec, List(ModuleProps("A"), ModuleProps("B"), ModuleProps("C")))
 
-    nodeA.boot(spec, List(ModuleProps("A", None)))
-    nodeB.boot(spec, List(ModuleProps("B", None)))
-    nodeC.boot(spec, List(ModuleProps("C", None)))
+    Thread.sleep(5000)
 
-    Thread.sleep(100)
-
-    nodeA.globalNodes.size should be(3)
-    nodeA.globalRunning should be(Set("A", "B", "C"))
-    nodeB.globalNodes.size should be(3)
-    nodeB.globalRunning should be(Set("A", "B", "C"))
-    nodeC.globalNodes.size should be(3)
-    nodeC.globalRunning should be(Set("A", "B", "C"))
+    nodeA.container.globalNodes.size should be(3)
+    nodeA.container.globalRunning should be(Set("A", "B", "C"))
+    nodeB.container.globalNodes.size should be(3)
+    nodeB.container.globalRunning should be(Set("A", "B", "C"))
+    nodeC.container.globalNodes.size should be(3)
+    nodeC.container.globalRunning should be(Set("A", "B", "C"))
+    Set(nodeA, nodeB, nodeC).map{_.container.localRunning.size}.sum should be(3)
 
     nodeA.shutdown()
 
-    Thread.sleep(100)
+    Thread.sleep(5000)
 
-    nodeB.globalNodes.size should be(2)
-    nodeB.globalRunning should be(Set("A", "B", "C"))
-    nodeC.globalNodes.size should be(2)
-    nodeC.globalRunning should be(Set("A", "B", "C"))
+    nodeB.container.globalNodes.size should be(2)
+    nodeB.container.globalRunning should be(Set("A", "B", "C"))
+    nodeC.container.globalNodes.size should be(2)
+    nodeC.container.globalRunning should be(Set("A", "B", "C"))
+    Set(nodeB, nodeC).map{_.container.localRunning.size}.sum should be(3)
 
     nodeC.shutdown()
 
-    Thread.sleep(100)
+    Thread.sleep(5000)
 
-    nodeB.globalNodes.size should be(1)
-    nodeB.globalRunning should be(Set("A", "B", "C"))
+    nodeB.container.globalNodes.size should be(1)
+    nodeB.container.globalRunning should be(Set("A", "B", "C"))
+    Set(nodeB).map{_.container.localRunning.size}.sum should be(3)
+
+    nodeB.shutdown()
+  }
+
+  it should "Flexible keep the run list up only" in {
+    // FIXME: start with lower ping timeout
+
+    val allMods = Map("A" -> ((_: ModuleProps) => Props[EmptyActor]), "B" -> ((_: ModuleProps) => Props[EmptyActor]), "C" -> ((_: ModuleProps) => Props[EmptyActor]))
+    val nodeA = new SystemNode(allMods)
+    val nodeB = new SystemNode(allMods)
+    val nodeC = new SystemNode(allMods)
+
+    val spec = Set(ModuleSpec("A", Set.empty), ModuleSpec("B", Set.empty), ModuleSpec("C", Set.empty))
+
+    nodeA.boot(spec, List(ModuleProps("A")))
+    nodeB.boot(spec, List(ModuleProps("B")))
+    nodeC.boot(spec, List(ModuleProps("C")))
+
+    Thread.sleep(5000)
+
+    nodeA.container.globalNodes.size should be(3)
+    nodeA.container.globalRunning should be(Set("A", "B", "C"))
+    nodeB.container.globalNodes.size should be(3)
+    nodeB.container.globalRunning should be(Set("A", "B", "C"))
+    nodeC.container.globalNodes.size should be(3)
+    nodeC.container.globalRunning should be(Set("A", "B", "C"))
+    Set(nodeA, nodeB, nodeC).map{_.container.localRunning.size} should be(Set(1, 1, 1))
+
+    nodeA.shutdown()
+
+    Thread.sleep(5000)
+
+    nodeB.container.globalNodes.size should be(2)
+    nodeB.container.globalRunning should be(Set("B", "C"))
+    nodeC.container.globalNodes.size should be(2)
+    nodeC.container.globalRunning should be(Set("B", "C"))
+    Set(nodeB, nodeC).map{_.container.localRunning.size} should be(Set(1, 1))
+
+    nodeC.shutdown()
+
+    Thread.sleep(5000)
+
+    nodeB.container.globalNodes.size should be(1)
+    nodeB.container.globalRunning should be(Set("B"))
+    Set(nodeB).map{_.container.localRunning.size} should be(Set(1))
+
+    nodeB.shutdown()
+  }
+
+  it should "Dynamically start up dependencies" in {
+    // FIXME: start with lower ping timeout
+
+    val allMods = Map("A" -> ((_: ModuleProps) => Props[EmptyActor]), "B" -> ((_: ModuleProps) => Props[EmptyActor]))
+    val nodeA = new SystemNode(allMods)
+    val nodeB = new SystemNode(allMods)
+    val nodeC = new SystemNode(allMods)
+
+    val spec = Set(ModuleSpec("A", Set.empty), ModuleSpec("B", Set("A")))
+
+    nodeA.boot(spec, List.empty)
+    nodeB.boot(spec, List.empty)
+    nodeC.boot(spec, List(ModuleProps("B")))
+
+    Thread.sleep(5000)
+
+    nodeA.container.globalNodes.size should be(3)
+    nodeA.container.globalRunning should be(Set("A", "B"))
+    nodeB.container.globalNodes.size should be(3)
+    nodeB.container.globalRunning should be(Set("A", "B"))
+    nodeC.container.globalNodes.size should be(3)
+    nodeC.container.globalRunning should be(Set("A", "B"))
+    Set(nodeA, nodeB, nodeC).map{_.container.localRunning.size}.sum should be(2)
+
+    nodeA.shutdown()
+
+    Thread.sleep(5000)
+
+    nodeB.container.globalNodes.size should be(2)
+    nodeB.container.globalRunning should be(Set("A", "B"))
+    nodeC.container.globalNodes.size should be(2)
+    nodeC.container.globalRunning should be(Set("A", "B"))
+    Set(nodeB, nodeC).map{_.container.localRunning.size} should be(Set(1, 1))
+
+    nodeC.shutdown()
+
+    Thread.sleep(5000)
+
+    nodeB.container.globalNodes.size should be(0)
+    nodeB.container.globalRunning should be(Set.empty)
+    Set(nodeB).map{_.container.localRunning.size} should be(Set.empty)
 
     nodeB.shutdown()
   }

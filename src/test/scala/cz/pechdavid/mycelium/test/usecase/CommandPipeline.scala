@@ -53,8 +53,7 @@ class CommandPipeline extends FlatSpec with ShouldMatchers {
   it should "Fall through the pipeline" in {
     val lst = mutable.MutableList.empty[String]
 
-    val system = new SystemNode
-    system.registerProps(Map("eventBus" -> ((_) => Props[EventBus]),
+    val system = new SystemNode(Map("eventBus" -> ((_) => Props[EventBus]),
       "commandBus" -> ((_) => Props[CommandBus]),
       "myApp" -> ((_) => Props[MyApp]),
       "inMemoryProjection" -> ((_) => Props(new InMemoryProjection(lst)))))

@@ -6,37 +6,57 @@ import akka.actor.{Props, ActorRef}
 /**
  * Created: 2/17/13 6:30 PM
  */
-class ModuleLifecycle {
+class ModuleLifecycle(supervisor: ActorRef) {
+  def notifyAvailable(module: String, requiring: Set[String]) {
 
-  def startProxy(name: String, supervisor: ActorRef) {
+    requiring.foreach {
+      target =>
+        supervisor ! Forward(target, DependencyOnline(module))
+    }
+  }
+
+  def notifyUnavailable(module: String, requiring: Set[String]) {
+
+    requiring.foreach {
+      target =>
+        supervisor ! Forward(target, DependencyNotOnline(module))
+    }
+  }
+
+  def stopSilently(module: String) {
+    supervisor ! StopSilentlyModule(module)
+  }
+
+
+  def startProxy(name: String) {
     supervisor ! StartNewModule(name, Props(new ForwardModule(name)))
   }
 
-  def create(name: String, args: ModuleProps, props: (ModuleProps) => Props, moduleSupervisor: ActorRef) {
+  def create(name: String, args: ModuleProps, props: (ModuleProps) => Props) {
 
-    moduleSupervisor ! StartNewModule(name, props(args))
+    supervisor ! StartNewModule(name, props(args))
 
-    moduleSupervisor ! Forward(name, PostInitialize)
+    supervisor ! Forward(name, PostInitialize)
   }
 
-  def start(name: String, moduleSupervisor: ActorRef) {
+  def start(name: String) {
     // FIXME check deps...
-    moduleSupervisor ! Forward(name, StartModule)
+    supervisor ! Forward(name, StartModule)
   }
 
-  def stop(localAvailable: Set[ModuleSpec], localRunning: Set[String], moduleSupervisor: ActorRef) {
+  def stop(localAvailable: Set[ModuleSpec], localRunning: Set[String]) {
     val linear = new DependencyLinearizer(localAvailable)
 
     val terminateList = linear.calculate(Set.empty, localRunning.toList).reverse
 
     terminateList.foreach {
-      moduleSupervisor ! Forward(_, StopModule)
+      supervisor ! Forward(_, StopModule)
     }
 
     Thread.sleep(500)
 
     terminateList.foreach {
-      moduleSupervisor ! Forward(_, PostStop)
+      supervisor ! Forward(_, PostStop)
     }
 
     Thread.sleep(500)
