@@ -40,56 +40,41 @@ class SystemNode {
     moduleLaunch = map
   }
 
-  def createProxies(run: List[ModuleProps]) {
-    val allPossible = localAvailable.map {
-      _.requirements
-    }.flatten ++ run.map {
-      _.name
-    }.toSet
-
-    val locals = localRunning ++ localAvailable.map {
-      _.name
-    }.toSet
-
-    val remote = allPossible--locals
-
-    // FIXME: only really required
-    remote.foreach {
-      name =>
-        supervisor ! StartNewModule(name, Props(new ForwardModule(name)))
-    }
-  }
-
   def boot(specs: Set[ModuleSpec], run: List[ModuleProps]) {
     localAvailable ++= specs
 
     val linear = new DependencyLinearizer(globalAvailable)
-    val correctOrder = linear.calculate(globalRunning, run.toList.map {
+    val correctOrder = linear.calculate(globalRunning, run.map {
       _.name
     })
 
     // FIXME: missing deps
 
     // FIXME: only required
-    createProxies(run)
+
+    val runNames = moduleLaunch.keys.toSet
 
     correctOrder.foreach {
       ordered =>
-        val ord = ordered
-        val lookup = lookupValues(run, ord)
+        if (runNames.contains(ordered)) {
+          val lookup = lookupValues(run, ordered)
 
-        moduleLifecycle.create(ord, lookup._2, lookup._1, supervisor)
+          moduleLifecycle.create(ordered, lookup._2, lookup._1, supervisor)
+        } else {
+          moduleLifecycle.startProxy(ordered, supervisor)
+        }
     }
 
     correctOrder.foreach {
       ordered =>
-        val ord = ordered
-        moduleLifecycle.start(ord, supervisor)
+        if (runNames.contains(ordered)) {
+          moduleLifecycle.start(ordered, supervisor)
 
-        localRunning += ord
+          localRunning += ordered
+        } else {
+          // proxy - pass
+        }
     }
-
-    // FIXME: launch other deps
   }
 
 
@@ -98,7 +83,7 @@ class SystemNode {
       ord != _.name
     }.headOption match {
       case Some(x) => x
-      case None => throw new RuntimeException
+      case None => ModuleProps(ord, None)
     }
     val launch = moduleLaunch.dropWhile {
       ord != _._1
@@ -112,13 +97,13 @@ class SystemNode {
   def globalAvailable: Set[ModuleSpec] = {
     status.map {
       _.available
-    }.flatten
+    }.flatten ++ localAvailable
   }
 
   def globalRunning: Set[String] = {
     status.map {
       _.running
-    }.flatten
+    }.flatten ++ localRunning
   }
 
   def moduleRef(name: String) = {

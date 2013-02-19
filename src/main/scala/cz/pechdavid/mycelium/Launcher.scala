@@ -9,6 +9,4 @@ object Launcher extends App {
 
   new SystemNode
 
-  Thread.sleep(1000)
-
 }

@@ -33,8 +33,8 @@ class DependencyLinearizerTest extends FlatSpec with ShouldMatchers {
     ))
 
     liner.calculate(Set.empty, List("F")) should be(List("B", "E", "F"))
-    liner.calculate(Set.empty, List("F", "D")) should be(List("B", "E", "F", "A", "C", "D"))
-    liner.calculate(Set("E", "A"), List("F", "D")) should be(List("B", "F", "C", "D"))
+    liner.calculate(Set.empty, List("F", "D")) should be(List("A", "C", "D", "B", "E", "F"))
+    liner.calculate(Set("E", "A"), List("F", "D")) should be(List("C", "D", "B", "F"))
   }
 
   it should "Throw cycle error" in {

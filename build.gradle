@@ -55,6 +55,8 @@ dependencies {
 	compile "com.github.cessationoftime:akka-amqp_2.10:2.2-SNAPSHOT"
 	compile "net.liftweb:lift-json_2.10:2.5-M4"
 
+    compile 'net.sf.jgrapht:jgrapht:0.8.3'
+
 	compile 'junit:junit:4.11'
 	compile "org.scalatest:scalatest_2.10.0:2.0.M5"
 	runtime "ch.qos.logback:logback-classic:1.0.9"
