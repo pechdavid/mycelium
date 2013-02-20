@@ -5,11 +5,12 @@ import org.scalatest.matchers.ShouldMatchers
 import akka.actor.{Props, Actor}
 import collection.mutable
 import cz.pechdavid.mycelium.core.node.SystemNode
-import cz.pechdavid.mycelium.core.module.{ModuleProps, ModuleSpec, StartModule}
+import cz.pechdavid.mycelium.core.module.{ModuleRef, ModuleProps, ModuleSpec, StartModule}
 import cz.pechdavid.mycelium.core.command.{CommandHandler, RegisterCommandHandler, CommandBus}
-import cz.pechdavid.mycelium.core.event.{EventHandler, RegisterEventHandler, EventBus}
+import cz.pechdavid.mycelium.core.event.{Event, EventHandler, RegisterEventHandler, EventBus}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import cz.pechdavid.mycelium.core.projection.NotifyProjections
 
 /**
  * Created: 2/15/13 6:11 PM
@@ -18,7 +19,7 @@ import org.scalatest.junit.JUnitRunner
 class CommandPipeline extends FlatSpec with ShouldMatchers {
 
   case class MyCommand(name: String)
-  case class MyCommandCalled(name: String)
+  case class MyCommandCalled(name: String) extends Event
   case class Store(name: String)
 
   class MyCommandHandler extends CommandHandler {
@@ -31,15 +32,15 @@ class CommandPipeline extends FlatSpec with ShouldMatchers {
   class MyCommandCalledHandler extends EventHandler {
     def handle = {
       case MyCommandCalled(name) =>
-        notifyProjections(Set("inMemoryProjection"), Store(name))
+        List(NotifyProjections(Set("inMemoryProjection"), Store(name)))
     }
   }
 
-  class MyApp extends Actor {
+  class MyApp extends ModuleRef {
     def receive = {
       case StartModule =>
-        context.actorFor("commandBus") ! RegisterCommandHandler(new MyCommandHandler)
-        context.actorFor("eventBus") ! RegisterEventHandler(new MyCommandCalledHandler)
+        moduleRef("commandBus") ! RegisterCommandHandler(new MyCommandHandler)
+        moduleRef("eventBus") ! RegisterEventHandler(new MyCommandCalledHandler)
     }
   }
 
@@ -55,7 +56,7 @@ class CommandPipeline extends FlatSpec with ShouldMatchers {
 
     val system = new SystemNode(Map("eventBus" -> ((_) => Props[EventBus]),
       "commandBus" -> ((_) => Props[CommandBus]),
-      "myApp" -> ((_) => Props[MyApp]),
+      "myApp" -> ((_) => Props(new MyApp)),
       "inMemoryProjection" -> ((_) => Props(new InMemoryProjection(lst)))))
 
     system.boot(
@@ -71,9 +72,11 @@ class CommandPipeline extends FlatSpec with ShouldMatchers {
       )
     )
 
-    system.system.actorFor("commandBus") ! MyCommand("Hello")
+    Thread.sleep(1000)
 
-    Thread.sleep(100)
+    system.moduleRef("commandBus") ! MyCommand("Hello")
+
+    Thread.sleep(1000)
 
     lst.headOption should be(Some("Hello"))
 

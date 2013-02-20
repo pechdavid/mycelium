@@ -33,6 +33,8 @@ class ModuleLifecycle extends FlatSpec with ShouldMatchers {
 
     node.shutdown()
 
+    Thread.sleep(2000)
+
     queue.size() should be(2)
     queue.removeFirst().msg should be(StopModule)
     queue.removeFirst().msg should be(PostStop)
@@ -46,10 +48,11 @@ class ModuleLifecycle extends FlatSpec with ShouldMatchers {
     // missing dep!
     node.boot(Set(ModuleSpec("A", Set("B"))), List(ModuleProps("A", None)))
 
-    Thread.sleep(100)
+    Thread.sleep(4000)
 
-    queue.size() should be(2)
+    queue.size() should be(3)
     queue.removeFirst().msg should be(PostInitialize)
+    queue.removeFirst().msg should be(StartModule)
     queue.removeFirst().msg should be(DependencyNotOnline("B"))
 
     node.shutdown()

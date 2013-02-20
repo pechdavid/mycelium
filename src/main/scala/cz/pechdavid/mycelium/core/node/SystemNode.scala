@@ -8,6 +8,7 @@ import cz.pechdavid.mycelium.core.module.ModuleProps
 import cz.pechdavid.mycelium.core.module.ModuleSpec
 import scala.Some
 import cz.pechdavid.mycelium.core.messaging.Producer
+import scala.concurrent.duration._
 
 /**
  * Created: 2/15/13 5:53 PM
@@ -125,7 +126,7 @@ class SystemNode(moduleLaunch: Map[String, (ModuleProps) => Props] = Map.empty) 
     lifecycle.stop(container.localAvailable, container.localRunning)
 
     system.shutdown()
+
+    system.awaitTermination(1 minute)
   }
-
-
 }

@@ -18,6 +18,6 @@ class ModuleSupervisor extends ModuleRef {
     case StopSilentlyModule(name) =>
       context.stop(moduleRef(name))
 
-      Thread.sleep(10)
+      Thread.sleep(50)
   }
 }

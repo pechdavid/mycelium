@@ -46,11 +46,11 @@ class WorkerQueue extends FlatSpec with ShouldMatchers {
 
     queue1.map {
       _.msg
-    }.toList should be (List("1", "3", "5"))
+    }.toList should be (List(TstMessage("1"), TstMessage("3"), TstMessage("5")))
 
     queue2.map {
       _.msg
-    }.toList should be (List("2", "4"))
+    }.toList should be (List(TstMessage("2"), TstMessage("4")))
 
     system.shutdown()
   }

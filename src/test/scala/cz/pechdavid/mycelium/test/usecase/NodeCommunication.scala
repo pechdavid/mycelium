@@ -137,7 +137,7 @@ class NodeCommunication extends FlatSpec with ShouldMatchers {
     nodeB.container.globalRunning should be(Set("A", "B"))
     nodeC.container.globalNodes.size should be(2)
     nodeC.container.globalRunning should be(Set("A", "B"))
-    Set(nodeB, nodeC).map{_.container.localRunning.size} should be(Set(1, 1))
+    Set(nodeB, nodeC).map{_.container.localRunning.size}.sum should be(2)
 
     nodeC.shutdown()
 

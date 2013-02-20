@@ -62,7 +62,7 @@ class SeamlessCommunication extends FlatSpec with ShouldMatchers {
 
 
   def sleepAndCheckQueue(queue: LinkedBlockingDeque[TestActor.Message]) {
-    Thread.sleep(1000)
+    Thread.sleep(2000)
 
     queue.size() should be(3)
     queue.removeFirst().msg should be(PostInitialize)
