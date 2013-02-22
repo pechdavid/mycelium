@@ -33,7 +33,4 @@ abstract class WorkerModule(name: String) extends ConsumerProxy with SLF4JLoggin
         log.debug("Message not handled: " + other.toString)
       }
   }
-
-
-
 }

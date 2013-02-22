@@ -3,11 +3,12 @@ package cz.pechdavid.mycelium.core.command
 import akka.actor.Actor
 import cz.pechdavid.mycelium.core.module.ModuleRef
 import cz.pechdavid.mycelium.core.event.EventPack
+import akka.event.slf4j.SLF4JLogging
 
 /**
  * Created: 2/15/13 11:59 PM
  */
-class CommandBus extends Actor with ModuleRef {
+class CommandBus extends Actor with ModuleRef with SLF4JLogging {
 
   var handlers = Set.empty[CommandHandler]
 
@@ -18,6 +19,8 @@ class CommandBus extends Actor with ModuleRef {
 
     case cmd: AnyRef =>
       val eventBus = moduleRef("eventBus")
+
+      log.debug("Command: " + cmd.toString)
 
       handlers.filter {
         handler =>

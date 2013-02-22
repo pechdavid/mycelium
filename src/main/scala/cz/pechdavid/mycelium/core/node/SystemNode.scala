@@ -9,13 +9,14 @@ import cz.pechdavid.mycelium.core.module.ModuleSpec
 import scala.Some
 import cz.pechdavid.mycelium.core.messaging.Producer
 import scala.concurrent.duration._
+import akka.event.slf4j.SLF4JLogging
 
 /**
  * Created: 2/15/13 5:53 PM
  */
-class SystemNode(moduleLaunch: Map[String, (ModuleProps) => Props] = Map.empty) {
+class SystemNode(moduleLaunch: Map[String, (ModuleProps) => Props] = Map.empty) extends SLF4JLogging {
   val name = NodeName.random()
-  val system = ActorSystem.create()
+  val system = ActorSystem.create("mycelium")
   val connection = AmqpExtension(system).connectionActor
 
   connection ! Connect
@@ -45,6 +46,8 @@ class SystemNode(moduleLaunch: Map[String, (ModuleProps) => Props] = Map.empty) 
     val correctOrder = linear.calculate(container.globalRunning, completeRunList.map {
       _.name
     })
+
+    log.info("Boot sequence: " + correctOrder)
 
     // FIXME: missing deps
 
