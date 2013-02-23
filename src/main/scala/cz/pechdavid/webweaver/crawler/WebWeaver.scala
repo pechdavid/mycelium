@@ -4,29 +4,24 @@ import cz.pechdavid.mycelium.core.command.{RegisterCommandHandler, CommandBus, C
 import cz.pechdavid.mycelium.core.event.{RegisterEventHandler, EventBus, EventHandler}
 import akka.actor.Props
 import cz.pechdavid.mycelium.core.node.SystemNode
-import cz.pechdavid.mycelium.core.module.{ModuleProps, ModuleSpec}
+import cz.pechdavid.mycelium.core.module.ModuleSpec
 
 /**
  * Created: 2/22/13 6:05 PM
  */
-class WebWeaver(queue: Option[Props], cmds: List[CommandHandler], evs: List[EventHandler]) {
+class WebWeaver(launchPatterns: Map[String, (ModuleSpec) => Props] = Map.empty, modules: List[ModuleSpec] = Nil,
+                cmds: List[CommandHandler], evs: List[EventHandler]) {
 
   val node = new SystemNode(
     Map(
-      "commandBus" -> ((_: ModuleProps) => Props[CommandBus]),
-      "eventBus" -> ((_: ModuleProps) => Props[EventBus])
-    ) ++ (
-      if (queue.isDefined) {
-        Map("queue" -> ((_: ModuleProps) => queue.get))
-      } else {
-        Map()
-      }
-    )
+      "commandBus" -> ((_: ModuleSpec) => Props[CommandBus]),
+      "eventBus" -> ((_: ModuleSpec) => Props[EventBus])
+    ) ++ launchPatterns
   )
 
   node.boot(Set(ModuleSpec("queue", Set("commandBus", "eventBus")),
-    ModuleSpec("commandBus", Set("eventBus"))),
-    List(ModuleProps("commandBus")) ++ (if (queue.isDefined)  List(ModuleProps("queue")) else List.empty)
+    ModuleSpec("commandBus", Set("eventBus")), ModuleSpec("eventBus")) ++ modules,
+    List("commandBus") ++ (modules.map(_.name))
   )
 
   Thread.sleep(200)

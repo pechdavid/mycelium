@@ -8,7 +8,7 @@ import cz.pechdavid.mycelium.core.node.SystemNode
 import java.util.concurrent.LinkedBlockingDeque
 import akka.testkit.TestActor
 import akka.actor.Props
-import cz.pechdavid.mycelium.core.module.{ModuleProps, ModuleSpec}
+import cz.pechdavid.mycelium.core.module.ModuleSpec
 import cz.pechdavid.mycelium.core.messaging.RoundRobinQueue
 import scala.collection.JavaConversions._
 
@@ -29,7 +29,7 @@ class WorkerQueue extends FlatSpec with ShouldMatchers {
 
     system.boot(Set(ModuleSpec("A1", Set.empty), ModuleSpec("A2", Set.empty),
       ModuleSpec("B", Set("A1", "A2"))),
-      List(ModuleProps("A1"), ModuleProps("A2"), ModuleProps("B")))
+      List("A1", "A2", "B"))
 
     Thread.sleep(1000)
 
@@ -46,11 +46,11 @@ class WorkerQueue extends FlatSpec with ShouldMatchers {
 
     queue1.map {
       _.msg
-    }.toList should be (List(TstMessage("1"), TstMessage("3"), TstMessage("5")))
+    }.toList should be(List(TstMessage("1"), TstMessage("3"), TstMessage("5")))
 
     queue2.map {
       _.msg
-    }.toList should be (List(TstMessage("2"), TstMessage("4")))
+    }.toList should be(List(TstMessage("2"), TstMessage("4")))
 
     system.shutdown()
   }

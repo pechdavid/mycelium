@@ -9,10 +9,8 @@ import akka.testkit.TestActor
 import java.util.concurrent.LinkedBlockingDeque
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import cz.pechdavid.mycelium.core.module.ModuleProps
 import cz.pechdavid.mycelium.core.module.ModuleSpec
 import cz.pechdavid.mycelium.core.module.PostInitialize
-import net.liftweb.json.JsonAST.JValue
 
 /**
  * Created: 2/15/13 6:10 PM
@@ -35,7 +33,7 @@ class SeamlessCommunication extends FlatSpec with ShouldMatchers {
     val system = new SystemNode(Map("A" -> ((_) => Props(new SendToB)),
       "B" -> ((_) => Props(new ConsumingTstModule("B", queue)))))
     system.boot(Set(ModuleSpec("A", Set("B")),
-      ModuleSpec("B", Set.empty)), List(ModuleProps("B", None), ModuleProps("A", None)))
+      ModuleSpec("B", Set.empty)), List("B", "A"))
 
     Thread.sleep(1000)
 
@@ -49,10 +47,10 @@ class SeamlessCommunication extends FlatSpec with ShouldMatchers {
     val queue = new LinkedBlockingDeque[TestActor.Message]()
     val systemB = new SystemNode(Map("B" -> ((_) => Props(new ConsumingTstModule("B", queue)))))
 
-    systemB.boot(Set(ModuleSpec("B", Set.empty)), List(ModuleProps("B", None)))
+    systemB.boot(Set(ModuleSpec("B", Set.empty)), List("B"))
 
     val systemA = new SystemNode(Map("A" -> ((_) => Props(new SendToB))))
-    systemA.boot(Set(ModuleSpec("A", Set("B"))), List(ModuleProps("A", None)))
+    systemA.boot(Set(ModuleSpec("A", Set("B"))), List("A"))
 
     sleepAndCheckQueue(queue)
 
@@ -76,10 +74,10 @@ class SeamlessCommunication extends FlatSpec with ShouldMatchers {
 
     // opposite order!
     val systemA = new SystemNode(Map("A" -> ((_) => Props(new SendToB))))
-    systemA.boot(Set(ModuleSpec("A", Set("B"))), List(ModuleProps("A", None)))
+    systemA.boot(Set(ModuleSpec("A", Set("B"))), List("A"))
 
     val systemB = new SystemNode(Map("B" -> ((_) => Props(new ConsumingTstModule("B", queue)))))
-    systemB.boot(Set(ModuleSpec("B", Set.empty)), List(ModuleProps("B", None)))
+    systemB.boot(Set(ModuleSpec("B", Set.empty)), List("B"))
 
     sleepAndCheckQueue(queue)
 

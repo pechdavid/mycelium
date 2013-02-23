@@ -20,7 +20,7 @@ class CommandBus extends Actor with ModuleRef with SLF4JLogging {
     case cmd: AnyRef =>
       val eventBus = moduleRef("eventBus")
 
-      log.debug("Command: " + cmd.toString)
+      log.info("Command: " + cmd.toString)
 
       handlers.filter {
         handler =>

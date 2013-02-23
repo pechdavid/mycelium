@@ -4,7 +4,7 @@ import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
 import cz.pechdavid.mycelium.core.module
 import cz.pechdavid.mycelium.core.operator.DependencyLinearizer
-import module.{ModuleSpec, ModuleProps}
+import module.ModuleSpec
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 

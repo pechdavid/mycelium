@@ -4,7 +4,6 @@ import cz.pechdavid.mycelium.core.module._
 import akka.actor.{Props, ActorSystem}
 import akka.amqp.{Connect, AmqpExtension}
 import cz.pechdavid.mycelium.core.operator.DependencyLinearizer
-import cz.pechdavid.mycelium.core.module.ModuleProps
 import cz.pechdavid.mycelium.core.module.ModuleSpec
 import scala.Some
 import cz.pechdavid.mycelium.core.messaging.Producer
@@ -14,7 +13,7 @@ import akka.event.slf4j.SLF4JLogging
 /**
  * Created: 2/15/13 5:53 PM
  */
-class SystemNode(moduleLaunch: Map[String, (ModuleProps) => Props] = Map.empty) extends SLF4JLogging {
+class SystemNode(launchPatterns: Map[String, (ModuleSpec) => Props] = Map.empty) extends SLF4JLogging {
   val name = NodeName.random()
   val system = ActorSystem.create("mycelium")
   val connection = AmqpExtension(system).connectionActor
@@ -34,46 +33,49 @@ class SystemNode(moduleLaunch: Map[String, (ModuleProps) => Props] = Map.empty) 
   // FIXME: shortcut for status
   // FIXME: depency watcher
 
-  def boot(specs: Set[ModuleSpec], run: List[ModuleProps], appendToRunList: Boolean = false) {
+  def boot(specs: Set[ModuleSpec], run: List[String], appendToRunList: Boolean = true) {
     container.localAvailable ++= specs
 
-    val completeRunList = container.runArgs ++ run
+    val mapSpec = (container.localAvailable.map {
+      s =>
+        s.name -> s
+    }).toMap
+
+
+    val completeRunList = container.localRunning.toList ++ run
     if (appendToRunList) {
-      container.runArgs = completeRunList
+      container.localRunning = completeRunList.toSet
     }
 
     val linear = new DependencyLinearizer(container.globalAvailable)
-    val correctOrder = linear.calculate(container.globalRunning, completeRunList.map {
-      _.name
-    })
+    val correctOrder = linear.calculate(container.globalRunning, completeRunList)
 
     log.info("Boot sequence: " + correctOrder)
 
     // FIXME: missing deps
-
     // FIXME: only required
-
-    val runNames = moduleLaunch.keys.toSet
 
     correctOrder.foreach {
       ordered =>
-        if (runNames.contains(ordered)) {
-          val lookup = lookupValues(completeRunList, ordered)
+        launchPatterns.get(mapSpec(ordered).launchPattern) match {
+          case Some(pattern) =>
+            lifecycle.create(ordered, pattern(mapSpec(ordered)))
 
-          lifecycle.create(ordered, lookup._2, lookup._1)
-        } else {
-          lifecycle.startProxy(ordered)
+          case None =>
+            lifecycle.startProxy(ordered)
         }
     }
 
     correctOrder.foreach {
       ordered =>
-        if (runNames.contains(ordered)) {
-          lifecycle.start(ordered)
+        launchPatterns.get(mapSpec(ordered).launchPattern) match {
+          case Some(pattern) =>
+            lifecycle.start(ordered)
 
-          container.localRunning += ordered
-        } else {
-          container.localProxy += ordered
+            container.localRunning += ordered
+
+          case None =>
+            container.localProxy += ordered
         }
     }
   }
@@ -86,7 +88,7 @@ class SystemNode(moduleLaunch: Map[String, (ModuleProps) => Props] = Map.empty) 
   }
 
   def startNoRunList(mod: String) {
-    boot(Set.empty, List(ModuleProps(mod)), false)
+    boot(Set.empty, List(mod), false)
   }
 
   def notifyAvailable(proxy: String) {
@@ -101,25 +103,9 @@ class SystemNode(moduleLaunch: Map[String, (ModuleProps) => Props] = Map.empty) 
 
   def replaceWithModule(proxy: String) {
     lifecycle.stopSilently(proxy)
-    boot(Set.empty, List(ModuleProps(proxy)), false)
+    boot(Set.empty, List(proxy), false)
   }
 
-
-  private def lookupValues(run: List[ModuleProps], ord: String): ((ModuleProps) => Props, ModuleProps) = {
-    val props = run.dropWhile {
-      ord != _.name
-    }.headOption match {
-      case Some(x) => x
-      case None => ModuleProps(ord, None)
-    }
-    val launch = moduleLaunch.dropWhile {
-      ord != _._1
-    }.headOption match {
-      case Some(x) => x._2
-      case None => throw new RuntimeException
-    }
-    (launch, props)
-  }
 
   def moduleRef(name: String) = {
     system.actorFor("/user/supervisor/" + name)

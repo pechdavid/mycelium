@@ -5,7 +5,7 @@ import org.scalatest.matchers.ShouldMatchers
 import akka.actor.{Props, Actor}
 import collection.mutable
 import cz.pechdavid.mycelium.core.node.SystemNode
-import cz.pechdavid.mycelium.core.module.{ModuleRef, ModuleProps, ModuleSpec, StartModule}
+import cz.pechdavid.mycelium.core.module.{ModuleRef, ModuleSpec, StartModule}
 import cz.pechdavid.mycelium.core.command.{CommandHandler, RegisterCommandHandler, CommandBus}
 import cz.pechdavid.mycelium.core.event.{Event, EventHandler, RegisterEventHandler, EventBus}
 import org.junit.runner.RunWith
@@ -19,7 +19,9 @@ import cz.pechdavid.mycelium.core.projection.NotifyProjections
 class CommandPipeline extends FlatSpec with ShouldMatchers {
 
   case class MyCommand(name: String)
+
   case class MyCommandCalled(name: String) extends Event
+
   case class Store(name: String)
 
   class MyCommandHandler extends CommandHandler {
@@ -67,8 +69,7 @@ class CommandPipeline extends FlatSpec with ShouldMatchers {
         ModuleSpec("inMemoryProjection", Set.empty)
       ),
       List(
-        ModuleProps("inMemoryProjection", None),
-        ModuleProps("myApp", None)
+        "inMemoryProjection", "myApp"
       )
     )
 

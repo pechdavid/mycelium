@@ -32,9 +32,8 @@ class ModuleLifecycle(supervisor: ActorRef) {
     supervisor ! StartNewModule(name, Props(new ForwardModule(name)))
   }
 
-  def create(name: String, args: ModuleProps, props: (ModuleProps) => Props) {
-
-    supervisor ! StartNewModule(name, props(args))
+  def create(name: String, props: Props) {
+    supervisor ! StartNewModule(name, props)
 
     supervisor ! Forward(name, PostInitialize)
   }

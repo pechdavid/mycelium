@@ -2,13 +2,11 @@ package cz.pechdavid.mycelium.test.usecase
 
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
-import akka.testkit.{TestActor, TestKit, TestProbe}
+import akka.testkit.TestActor
 import cz.pechdavid.mycelium.core.node.SystemNode
-import akka.actor.{ActorSystem, Props}
 import java.util.concurrent.LinkedBlockingDeque
 import cz.pechdavid.mycelium.core.module._
 import cz.pechdavid.mycelium.core.module.ModuleSpec
-import cz.pechdavid.mycelium.core.module.ModuleProps
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
@@ -23,7 +21,7 @@ class ModuleLifecycle extends FlatSpec with ShouldMatchers {
     val queue = new LinkedBlockingDeque[TestActor.Message]()
 
     val node = new SystemNode(Map("A" -> ((_) => TestActor.props(queue))))
-    node.boot(Set(ModuleSpec("A", Set.empty)), List(ModuleProps("A", None)))
+    node.boot(Set(ModuleSpec("A", Set.empty)), List("A"))
 
     Thread.sleep(500)
 
@@ -46,7 +44,7 @@ class ModuleLifecycle extends FlatSpec with ShouldMatchers {
 
     val node = new SystemNode(Map("A" -> ((_) => TestActor.props(queue))))
     // missing dep!
-    node.boot(Set(ModuleSpec("A", Set("B"))), List(ModuleProps("A", None)))
+    node.boot(Set(ModuleSpec("A", Set("B"))), List("A"))
 
     Thread.sleep(4000)
 

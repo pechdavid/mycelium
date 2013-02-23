@@ -3,7 +3,7 @@ package cz.pechdavid.mycelium.test.usecase
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
 import cz.pechdavid.mycelium.core.node.SystemNode
-import cz.pechdavid.mycelium.core.module.{ModuleProps, ModuleSpec}
+import cz.pechdavid.mycelium.core.module.ModuleSpec
 import akka.actor.{Actor, Props}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -34,7 +34,7 @@ class DependencyInjection extends FlatSpec with ShouldMatchers {
 
     node.boot(Set(
       ModuleSpec("A", Set.empty),
-      ModuleSpec("B", Set("A"))), List(ModuleProps("B", None)))
+      ModuleSpec("B", Set("A"))), List("B"))
 
     Thread.sleep(2000)
 

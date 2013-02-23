@@ -3,7 +3,7 @@ package cz.pechdavid.mycelium.test.usecase
 import cz.pechdavid.mycelium.core.node.SystemNode
 import java.util.concurrent.{BlockingDeque, LinkedBlockingDeque}
 import akka.testkit.TestActor
-import cz.pechdavid.mycelium.core.module.{ModuleProps, ModuleSpec}
+import cz.pechdavid.mycelium.core.module.ModuleSpec
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
 import akka.actor.{Props, Actor}
@@ -17,6 +17,7 @@ import org.scalatest.junit.JUnitRunner
 class ExceptionSurvival extends FlatSpec with ShouldMatchers {
 
   case object ThrowExceptionCausingRestart
+
   case object CorrectMessage
 
   class TrapActor(queue: BlockingDeque[TestActor.Message]) extends Actor {
@@ -34,7 +35,7 @@ class ExceptionSurvival extends FlatSpec with ShouldMatchers {
     val queue = new LinkedBlockingDeque[TestActor.Message]()
 
     val system = new SystemNode(Map("A" -> ((_) => Props(new TrapActor(queue)))))
-    system.boot(Set(ModuleSpec("A", Set.empty)), List(ModuleProps("A", None)))
+    system.boot(Set(ModuleSpec("A", Set.empty)), List("A"))
 
     Thread.sleep(100)
 
