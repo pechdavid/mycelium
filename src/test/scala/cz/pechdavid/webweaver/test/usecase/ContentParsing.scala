@@ -8,7 +8,7 @@ import java.util.concurrent.LinkedBlockingDeque
 import cz.pechdavid.webweaver.crawler.{DownloadHandler, WebWeaver, SingleUrlQueue, Downloaded}
 import akka.actor.Props
 import cz.pechdavid.webweaver.structured.{ParsedHtml, ParserEventHandler}
-import cz.pechdavid.mycelium.core.module.ModuleSpec
+import cz.pechdavid.mycelium.core.module.{StartModule, PostInitialize, ModuleSpec}
 import cz.pechdavid.mycelium.test.usecase.ConsumingTstModule
 import akka.testkit.TestActor
 
@@ -32,12 +32,15 @@ class ContentParsing extends FlatSpec with ShouldMatchers {
       List(new ParserEventHandler(Set("myProjection")))
     )
 
-    Thread.sleep(10000)
+    Thread.sleep(15000)
 
-    targetQueue.size() should be (1)
+    targetQueue.size() should be (3)
+    targetQueue.getFirst.msg should be(PostInitialize)
+    targetQueue.getFirst.msg should be(StartModule)
     targetQueue.getFirst.msg match {
       case doc: ParsedHtml =>
         doc.title should be("Root.cz - informace nejen ze světa Linuxu")
+        doc.url should be("www.root.cz")
 
       case other: AnyRef =>
         // fail

@@ -41,16 +41,15 @@ class SystemNode(launchPatterns: Map[String, (ModuleSpec) => Props] = Map.empty)
         s.name -> s
     }).toMap
 
-
     val completeRunList = container.localRunning.toList ++ run
+    val linear = new DependencyLinearizer(container.globalAvailable)
+    val correctOrder = linear.calculate(container.globalRunning, completeRunList)
+
     if (appendToRunList) {
       container.localRunning = completeRunList.toSet
     }
 
-    val linear = new DependencyLinearizer(container.globalAvailable)
-    val correctOrder = linear.calculate(container.globalRunning, completeRunList)
-
-    log.info("Boot sequence: " + correctOrder)
+    log.info("Boot sequence: " + correctOrder + ", from run list: " + completeRunList)
 
     // FIXME: missing deps
     // FIXME: only required
