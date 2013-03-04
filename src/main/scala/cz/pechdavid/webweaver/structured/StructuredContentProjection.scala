@@ -1,17 +1,15 @@
 package cz.pechdavid.webweaver.structured
 
-import com.mongodb.casbah.MongoClient
 import com.mongodb.casbah.commons.MongoDBObject
 import cz.pechdavid.mycelium.core.module.WorkerModule
 import net.liftweb.json.JsonAST.JValue
+import cz.pechdavid.mycelium.extension.mongo.ConnectionParams
 
 /**
  * Created: 2/24/13 5:48 PM
  */
-class StructuredContentProjection(server: String, dbName: String) extends WorkerModule("structuredContentProjection") {
-  val connection = MongoClient(server)
-  val db = connection(dbName)
-  val col = db(StructuredContentTrl.Collection)
+class StructuredContentProjection(connection: ConnectionParams) extends WorkerModule("structuredContentProjection") {
+  val col = connection.collection(StructuredContentTrl.Collection)
 
   def handle = {
     case doc: ParsedHtml =>

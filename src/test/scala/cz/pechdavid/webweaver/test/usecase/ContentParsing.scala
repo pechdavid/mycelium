@@ -11,6 +11,7 @@ import cz.pechdavid.webweaver.structured.{StructuredContentTrl, StructuredConten
 import cz.pechdavid.mycelium.core.module.{StartModule, PostInitialize, ModuleSpec}
 import cz.pechdavid.mycelium.test.usecase.ConsumingTstModule
 import akka.testkit.TestActor
+import cz.pechdavid.mycelium.extension.mongo.ConnectionParams
 
 /**
  * Created: 2/23/13 8:28 PM
@@ -49,7 +50,8 @@ class ContentParsing extends FlatSpec with ShouldMatchers {
   }
 
   it should "Store parsed" in {
-    val ww = new WebWeaver(Map("structured" -> ((_: ModuleSpec) => Props(new StructuredContentProjection("localhost", "mycelium")))),
+    val con = ConnectionParams("localhost", "mycelium")
+    val ww = new WebWeaver(Map("structured" -> ((_: ModuleSpec) => Props(new StructuredContentProjection(con)))),
       List(ModuleSpec("structured")),
       List.empty,
       List.empty
@@ -61,7 +63,7 @@ class ContentParsing extends FlatSpec with ShouldMatchers {
 
     Thread.sleep(1000)
 
-    val trl = new StructuredContentTrl("localhost", "mycelium")
+    val trl = new StructuredContentTrl(con)
 
     val docOp = trl.byUrl("www.root.cz")
 
