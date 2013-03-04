@@ -60,6 +60,10 @@ dependencies {
 	compile "com.github.cessationoftime:akka-amqp_2.10:2.2-SNAPSHOT"
 	compile "net.liftweb:lift-json_2.10:2.5-M4"
 
+	compile 'org.apache.lucene:lucene-queries:4.1.0'
+	compile 'org.apache.lucene:lucene-analyzers-common:4.1.0'
+	compile 'org.apache.lucene:lucene-queryparser:4.1.0'
+
 	compile 'net.sf.jgrapht:jgrapht:0.8.3'
 	compile 'org.mongodb:casbah_2.10:2.5.0'
 

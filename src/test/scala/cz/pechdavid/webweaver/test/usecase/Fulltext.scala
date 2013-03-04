@@ -25,24 +25,22 @@ class Fulltext extends FlatSpec with ShouldMatchers {
 
     val ww = new WebWeaver(Map("fulltext" -> ((_: ModuleSpec) => Props(new FulltextProjection)),
       "output" -> ((_: ModuleSpec) => Props(new ConsumingTstModule("output", targetQueue)))),
-      List(ModuleSpec("fulltext")),
-      List.empty,
-      List.empty
+      List(ModuleSpec("fulltext"), ModuleSpec("output"))
     )
 
     Thread.sleep(1000)
 
     ww.node.moduleRef("fulltext") ! ParsedHtml("www.url.cz", "Ukazka textu")
 
-    Thread.sleep(1000)
+    Thread.sleep(2000)
 
     targetQueue.clear()
 
     ww.node.moduleRef("fulltext") ! FulltextSearch("textu ukazka", "output")
 
-    Thread.sleep(1000)
+    Thread.sleep(2000)
 
     targetQueue.size() should be(1)
-    targetQueue.getFirst.msg should be(List(FulltextResult("www.url.cz", "Ukazka textu")))
+    targetQueue.getFirst.msg should be(Array(FulltextResult("www.url.cz", "Ukazka textu")))
   }
 }

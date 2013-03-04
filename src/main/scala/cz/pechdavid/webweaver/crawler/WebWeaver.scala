@@ -10,7 +10,7 @@ import cz.pechdavid.mycelium.core.module.ModuleSpec
  * Created: 2/22/13 6:05 PM
  */
 class WebWeaver(launchPatterns: Map[String, (ModuleSpec) => Props] = Map.empty, modules: List[ModuleSpec] = Nil,
-                cmds: List[CommandHandler], evs: List[EventHandler]) {
+                cmds: List[CommandHandler] = List.empty, evs: List[EventHandler] = List.empty) {
 
   val node = new SystemNode(
     Map(
