@@ -25,6 +25,9 @@ allprojects {
 			url "http://repo.typesafe.com/typesafe/releases/"
 		}
 		maven {
+			url "https://oss.sonatype.org/content/repositories/releases/"
+		}
+		maven {
 			url "http://repository-pechdavid.forge.cloudbees.com/snapshot/"
 		}
 	}
@@ -57,7 +60,8 @@ dependencies {
 	compile "com.github.cessationoftime:akka-amqp_2.10:2.2-SNAPSHOT"
 	compile "net.liftweb:lift-json_2.10:2.5-M4"
 
-    compile 'net.sf.jgrapht:jgrapht:0.8.3'
+	compile 'net.sf.jgrapht:jgrapht:0.8.3'
+	compile 'org.mongodb:casbah_2.10:2.5.0'
 
 	compile 'junit:junit:4.11'
 	compile "org.scalatest:scalatest_2.10.0:2.0.M5"

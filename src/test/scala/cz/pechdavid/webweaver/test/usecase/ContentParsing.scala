@@ -5,9 +5,9 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
 import java.util.concurrent.LinkedBlockingDeque
-import cz.pechdavid.webweaver.crawler.{DownloadHandler, WebWeaver, SingleUrlQueue, Downloaded}
+import cz.pechdavid.webweaver.crawler.{DownloadHandler, WebWeaver, SingleUrlQueue}
 import akka.actor.Props
-import cz.pechdavid.webweaver.structured.{ParsedHtml, ParserEventHandler}
+import cz.pechdavid.webweaver.structured.{StructuredContentTrl, StructuredContentProjection, ParsedHtml, ParserEventHandler}
 import cz.pechdavid.mycelium.core.module.{StartModule, PostInitialize, ModuleSpec}
 import cz.pechdavid.mycelium.test.usecase.ConsumingTstModule
 import akka.testkit.TestActor
@@ -23,7 +23,6 @@ class ContentParsing extends FlatSpec with ShouldMatchers {
     queue.add("www.root.cz")
 
     val targetQueue = new LinkedBlockingDeque[TestActor.Message]()
-
     val urlQueue = (_: ModuleSpec) => Props(new SingleUrlQueue(queue))
 
     new WebWeaver(Map("queue" -> urlQueue, "myProjection" -> ((_: ModuleSpec) => Props(new ConsumingTstModule("myProjection", targetQueue)))),
@@ -34,10 +33,10 @@ class ContentParsing extends FlatSpec with ShouldMatchers {
 
     Thread.sleep(15000)
 
-    targetQueue.size() should be (3)
-    targetQueue.getFirst.msg should be(PostInitialize)
-    targetQueue.getFirst.msg should be(StartModule)
-    targetQueue.getFirst.msg match {
+    targetQueue.size() should be(3)
+    targetQueue.pop.msg should be(PostInitialize)
+    targetQueue.pop.msg should be(StartModule)
+    targetQueue.pop.msg match {
       case doc: ParsedHtml =>
         doc.title should be("Root.cz - informace nejen ze světa Linuxu")
         doc.url should be("www.root.cz")
@@ -49,4 +48,25 @@ class ContentParsing extends FlatSpec with ShouldMatchers {
 
   }
 
+  it should "Store parsed" in {
+    val ww = new WebWeaver(Map("structured" -> ((_: ModuleSpec) => Props(new StructuredContentProjection("localhost", "mycelium")))),
+      List(ModuleSpec("structured")),
+      List.empty,
+      List.empty
+    )
+
+    Thread.sleep(1000)
+
+    ww.node.moduleRef("structured") ! ParsedHtml("www.root.cz", "Ukazka textu")
+
+    Thread.sleep(1000)
+
+    val trl = new StructuredContentTrl("localhost", "mycelium")
+
+    val docOp = trl.byUrl("www.root.cz")
+
+    docOp.isDefined should be(true)
+    val doc = docOp.get
+    doc.get("url") should be("www.root.cz")
+  }
 }
