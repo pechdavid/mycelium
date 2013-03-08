@@ -1,12 +1,12 @@
-package cz.pechdavid.webweaver.graph
+package cz.pechdavid.webweaver.structured
 
 import cz.pechdavid.mycelium.core.module.WorkerModule
 import net.liftweb.json.JsonAST.JValue
 
 /**
- * Created: 2/24/13 5:49 PM
+ * Created: 3/8/13 8:34 PM
  */
-class GraphProjection(name: String) extends WorkerModule(name) {
+class RequeueHandler(name: String) extends WorkerModule(name) {
   def extract(parsedPayload: JValue) = ???
 
   def handle = ???
