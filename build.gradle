@@ -30,6 +30,12 @@ allprojects {
 		maven {
 			url "http://repository-pechdavid.forge.cloudbees.com/snapshot/"
 		}
+		maven {
+			url "http://repo.fusesource.com/nexus/content/repositories/public"
+		}
+		maven {
+			url "http://repo.spray.io/"
+		}
 	}
 }
 
@@ -73,17 +79,21 @@ dependencies {
 	
 	compile 'org.jsoup:jsoup:1.7.2'
 
+	compile 'io.spray:spray-can:1.1-M7'
+	compile 'io.spray:spray-routing:1.1-M7'
+	compile 'org.fusesource.scalate:scalate-core_2.10:1.6.1'
+
 	compile "com.typesafe.akka:akka-actor_2.10:2.1.0"
 	compile "com.typesafe.akka:akka-slf4j_2.10:2.1.0"
 	testCompile "com.typesafe.akka:akka-testkit_2.10:2.1.0"
 
 	testCompile "junit:junit:4.11"
 	
-	// Libraries needed to run the scala tools
+	// libraries needed to run the scala tools
 	scalaTools 'org.scala-lang:scala-compiler:2.10.0'
 	scalaTools 'org.scala-lang:scala-library:2.10.0'
 
-	// Libraries needed for scala api
+	// libraries needed for scala api
 	compile 'org.scala-lang:scala-library:2.10.0'
 }
 
