@@ -1,0 +1,72 @@
+<%@ var body: String %>
+<%@ var page: String = "index" %>
+<%@ var recent: List[cz.pechdavid.webweaver.fts.FulltextResult] = Nil %>
+<%@ var title: String = "WebWeaver - modern cloud web crawler based on Mycelium" %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>${title}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="David Pech">
+
+    <!-- Le styles -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+        }
+    </style>
+    <link href="css/bootstrap-responsive.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+    <script src="js/html5shiv.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="brand" href="#">WebWeaver / Mycelium Show Case</a>
+            <div class="nav-collapse collapse">
+                <ul class="nav">
+                    <li#if (page == "index") class="active"#end><a href="index.html">Home</a></li>
+                    <li#if (page == "search") class="active"#end><a href="search.html">Search</a></li>
+                    <li#if (page == "graph") class="active"#end><a href="graph.html">Graph</a></li>
+                    <li#if (page == "raw") class="active"#end><a href="raw.html">Raw content</a></li>
+                    <li#if (page == "structured") class="active"#end><a href="structured.html">Structured content</a></li>
+                    <li#if (page == "stats") class="active"#end><a href="stats.html">Stats</a></li>
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    ${unescape(body)}
+
+    #if (!recent.isEmpty)
+
+        <h2>Recently indexed</h2>
+        <ol>
+
+            #for(res <- recent)
+                <li><strong>${res.url}</strong> - ${res.title} <a href="graph.html?url=${res.url}">graph</a> <a href="raw.html?url=${res.url}">download</a>
+                    <a href="structured.html?url=${res.url}">structure</a></li>
+            #end
+        </ol>
+
+    #end
+</div> <!-- /container -->
+
+</body>
+</html>

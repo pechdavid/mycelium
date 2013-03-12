@@ -9,14 +9,14 @@ import akka.actor.PoisonPill
 /**
  * Created: 3/10/13 11:19 AM
  */
-class WebServerModule(name: String, interface: String, port: Int)(route: Route) extends WorkerModule(name) with SimpleRoutingApp {
+class WebServerModule(name: String, interface: String, port: Int)(routing: RoutingRules) extends WorkerModule(name) with SimpleRoutingApp {
   def extract(parsedPayload: JValue) = {
     parsedPayload
   }
 
   def handle = {
     case StartModule =>
-      startServer(interface, port)(route)
+      startServer(interface, port)(routing.routing)
 
     case StopModule =>
       context.child("http-server") match {

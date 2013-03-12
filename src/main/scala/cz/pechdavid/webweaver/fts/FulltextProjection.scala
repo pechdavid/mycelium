@@ -6,12 +6,14 @@ import org.apache.lucene.index._
 import org.apache.lucene.analysis.standard.StandardAnalyzer
 import org.apache.lucene.util.Version
 import org.apache.lucene.store.RAMDirectory
-import cz.pechdavid.webweaver.structured.ParsedHtml
-import org.apache.lucene.document.{StringField, TextField, Document}
+import org.apache.lucene.document.{LongField, StringField, TextField, Document}
 import org.apache.lucene.document.Field.Store
 import org.apache.lucene.queryparser.classic.QueryParser
-import org.apache.lucene.search.{SearcherFactory, NRTManager}
+import org.apache.lucene.search._
 import org.apache.lucene.search.NRTManager.TrackingIndexWriter
+import cz.pechdavid.webweaver.structured.ParsedHtml
+import scala.Some
+import org.apache.lucene.search.SortField.Type
 
 /**
  * Created: 2/24/13 5:45 PM
@@ -37,8 +39,29 @@ class FulltextProjection extends WorkerModule("fulltextProjection") {
     val doc = new Document
     doc.add(new TextField("title", html.title, Store.YES))
     doc.add(new StringField("url", html.url, Store.YES))
+    doc.add(new LongField("insertedAt", System.currentTimeMillis(), Store.NO))
 
     doc
+  }
+
+  private def translateResults(query: Query, limit: Int, sort: Option[Sort] = None) = {
+    manager.maybeRefresh()
+    val searcher = manager.acquire()
+
+    val docs = sort match {
+      case Some(s) =>
+        searcher.search(query, limit, s)
+      case None =>
+        searcher.search(query, limit)
+    }
+
+    val res = for (dId <- docs.scoreDocs;
+                   doc = searcher.doc(dId.doc)) yield {
+      FulltextResult(doc.get("url"), doc.get("title"))
+    }
+    manager.release(searcher)
+
+    res
   }
 
   def handle = {
@@ -46,17 +69,20 @@ class FulltextProjection extends WorkerModule("fulltextProjection") {
       writer.addDocument(prepareDoc(html))
 
     case search: FulltextSearch =>
-      val query = parser.parse(search.query)
-      manager.maybeRefresh()
-      val searcher = manager.acquire()
-      val docs = searcher.search(query, 50)
+      val res = translateResults(parser.parse(search.query), 50)
 
-      val res = for (dId <- docs.scoreDocs;
-                     doc = searcher.doc(dId.doc)) yield {
-        FulltextResult(doc.get("url"), doc.get("title"))
+      search.targetModule match {
+        case Some(x) =>
+          moduleRef(x) ! res
+
+        case None =>
+          sender ! res
       }
-      manager.release(searcher)
+    case FulltextRecent =>
 
-      moduleRef(search.targetModule) ! res
+      val query = new BooleanQuery()
+
+      val res = translateResults(query, 10, Option(new Sort(new SortField("createdAt", Type.LONG, true))))
+      sender ! res
   }
 }

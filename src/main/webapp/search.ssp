@@ -1,0 +1,30 @@
+<%@ var query: cz.pechdavid.webweaver.web.SearchQuery %>
+<%@ var results: List[cz.pechdavid.webweaver.fts.FulltextResult] = Nil %>
+
+      <h1>Fulltext Search (Lucene)</h1>
+
+            <p>Use this for fulltext search:</p>
+
+                <form method="get">
+
+                    <input type="text" name="query" value="${query.query}" onclick="this.value = '';">
+
+                    <input type="submit">
+
+                </form>
+				
+				<p>Type your search and see the results below!</p>
+
+                #if (results.isEmpty && query.query.isDefined && query.query.get != "")
+                    <h2>Top Results</h2>
+                    <p>Nothing was found!</p>
+
+                #elseif(!results.isEmpty)
+                    <h2>Top Results</h2>
+                    <ol>
+                        #for(res <- results)
+                            <li><strong>${res.url}</strong> - ${res.title} <a href="graph.html?url=${res.url}">graph</a> <a href="raw.html?url=${res.url}">download</a>
+                                <a href="structured.html?url=${res.url}">structure</a></li>
+                        #end
+                    </ol>
+                #end

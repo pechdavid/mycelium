@@ -36,7 +36,7 @@ class Fulltext extends FlatSpec with ShouldMatchers {
 
     targetQueue.clear()
 
-    ww.node.moduleRef("fulltext") ! FulltextSearch("textu ukazka", "output")
+    ww.node.moduleRef("fulltext") ! FulltextSearch("textu ukazka", Option("output"))
 
     Thread.sleep(2000)
 
