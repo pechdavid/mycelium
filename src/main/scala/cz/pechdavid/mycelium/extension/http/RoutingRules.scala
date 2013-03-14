@@ -1,6 +1,6 @@
 package cz.pechdavid.mycelium.extension.http
 
-import akka.actor.ActorRefFactory
+import akka.actor.{ActorRef, ActorRefFactory}
 import spray.routing.Route
 
 /**
@@ -8,6 +8,6 @@ import spray.routing.Route
  */
 trait RoutingRules {
 
-  def routing(implicit actorRefFactory: ActorRefFactory): Route
+  def routing(ftsModule: ActorRef)(implicit actorRefFactory: ActorRefFactory): Route
 
 }

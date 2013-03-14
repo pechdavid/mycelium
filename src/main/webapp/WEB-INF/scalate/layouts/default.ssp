@@ -1,6 +1,6 @@
 <%@ var body: String %>
 <%@ var page: String = "index" %>
-<%@ var recent: List[cz.pechdavid.webweaver.fts.FulltextResult] = Nil %>
+<%@ var recent: Array[cz.pechdavid.webweaver.fts.FulltextResult] = Array.empty %>
 <%@ var title: String = "WebWeaver - modern cloud web crawler based on Mycelium" %>
 <!DOCTYPE html>
 <html lang="en">
