@@ -35,7 +35,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="brand" href="#">WebWeaver / Mycelium Show Case</a>
+            <a class="brand" href="index.html">WebWeaver / Mycelium Show Case</a>
             <div class="nav-collapse collapse">
                 <ul class="nav">
                     <li#if (page == "index") class="active"#end><a href="index.html">Home</a></li>
@@ -58,13 +58,11 @@
 
         <h2>Recently indexed</h2>
         <ol>
-
             #for(res <- recent)
                 <li><strong>${res.url}</strong> - ${res.title} <a href="graph.html?url=${res.url}">graph</a> <a href="raw.html?url=${res.url}">download</a>
                     <a href="structured.html?url=${res.url}">structure</a></li>
             #end
         </ol>
-
     #end
 </div> <!-- /container -->
 

@@ -16,7 +16,7 @@ class WebServerModule(name: String, interface: String, port: Int)(routing: Routi
 
   def handle = {
     case StartModule =>
-      startServer(interface, port)(routing.routing(moduleRef("fulltextProjection")))
+      startServer(interface, port)(routing.routing(moduleRef("fulltextProjection"), moduleRef("queue")))
 
     case StopModule =>
       context.child("http-server") match {

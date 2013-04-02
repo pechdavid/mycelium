@@ -1,3 +1,6 @@
+<%@ var queue: List[String] = List.empty %>
+<%@ var valid: Boolean = true %>
+
       <h1>Cloud Web Crawler</h1>
 
       <p>This is a demo of a dimploma thesis on a cloud framework called Mycelium by David Pech.</p>
@@ -6,17 +9,31 @@
 
 				<h2>Input new URL for indexing</h2>
 
-					<p>...</p>
+					<p>
+                        <form method="get">
 
+                            #if (!valid)
+                                <p>Invalid url!</p>
+                            #end
+
+                            <input type="text" name="to_queue">
+
+                            <input type="submit" value="Queue url!">
+                        </form>
+                    </p>
 
 					<h3>Current Qeueu</h3>
 
-						<ul>
-							<li>A</li>
-							<li>B</li>
-						</ul>
-	
+
+                        #if (queue.isEmpty)
+                            <p>The queue is currently empty.</p>
+                        #else
+                            <ul>
+                                #for(el <- queue)
+                                    <li><a href="$el">$el</a></li>
+                                #end
+                            </ul>
+                        #end
+
 				<h2>Random Indexed Page</h2>
-
 					... graph? ...
-

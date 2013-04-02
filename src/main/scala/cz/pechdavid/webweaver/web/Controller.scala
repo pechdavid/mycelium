@@ -15,6 +15,7 @@ import akka.pattern._
 import concurrent.Await
 import scala.concurrent.duration._
 import akka.util.Timeout
+import cz.pechdavid.webweaver.crawler.{QueuePeek, AddToQueue}
 
 /**
  * Created: 3/10/13 1:31 PM
@@ -22,17 +23,23 @@ import akka.util.Timeout
 
 case class SearchQuery(query: Option[String])
 
+case class ToQueue(to_queue: Option[String])
+
 case object ControllerGraph
+
 case object ControllerStats
+
 case object ControllerStructured
+
 case object ControllerRaw
-case object ControllerIndex
+
+case class ControllerIndex(queue: Option[String])
 
 object Controller extends RoutingRules with Directives {
 
-  def routing(ftsModule: ActorRef)(implicit actorRefFactory: ActorRefFactory) = {
+  def routing(ftsModule: ActorRef, queue: ActorRef)(implicit actorRefFactory: ActorRefFactory) = {
     val con = ConnectionParams("localhost", "mycelium")
-    val controller = actorRefFactory.actorOf(Props(new Controller(con, con, con, con, ftsModule)), "controller")
+    val controller = actorRefFactory.actorOf(Props(new Controller(con, con, con, con, ftsModule, queue)), "controller")
     implicit val timeout = Timeout(1 minute)
 
     path("") {
@@ -90,10 +97,13 @@ object Controller extends RoutingRules with Directives {
       } ~
       path("index.html") {
         get {
-          respondWithMediaType(MediaTypes.`text/html`) {
-            complete {
-              Await.result(controller ? ControllerIndex, 1 minute).asInstanceOf[String]
-            }
+          parameters('to_queue ?).as(ToQueue) {
+            toQueue: ToQueue =>
+              respondWithMediaType(MediaTypes.`text/html`) {
+                complete {
+                  Await.result(controller ? ControllerIndex(toQueue.to_queue), 1 minute).asInstanceOf[String]
+                }
+              }
           }
         }
       } ~
@@ -112,7 +122,7 @@ object Controller extends RoutingRules with Directives {
 }
 
 class Controller(rawCon: ConnectionParams, structuredCon: ConnectionParams, graphCon: ConnectionParams,
-                 statsCon: ConnectionParams, ftsModule: ActorRef) extends Actor {
+                 statsCon: ConnectionParams, ftsModule: ActorRef, queueWorker: ActorRef) extends Actor {
 
 
   val tplEngine = new TemplateEngine(Set(new File("/"), new File("/WEB-INF/scalate"), new File("/WEB-INF/scalate/layouts"),
@@ -141,14 +151,23 @@ class Controller(rawCon: ConnectionParams, structuredCon: ConnectionParams, grap
   }
 
   def receive = {
-    case ControllerIndex =>
+    case req: ControllerIndex =>
+
+      var valid = true
+      if (req.queue.isDefined) {
+        valid = AddToQueue.isValid(req.queue.get)
+
+        if (valid) {
+          queueWorker ! AddToQueue(req.queue.get)
+        }
+      }
+      val q = Await.result((queueWorker ? QueuePeek).mapTo[Iterator[String]], 1 minute)
 
       val res = Await.result((ftsModule ? FulltextRecent).mapTo[Array[FulltextResult]], 1 minute)
 
-      sender ! render("index.ssp", Map("recent" -> res))
+      sender ! render("index.ssp", Map("recent" -> res, "valid" -> valid, "queue" -> q))
 
     case query: SearchQuery =>
-      //implicit val timeout = 1 minute
       //val lst = Await.result(actorRefFactory.actorFor(ModuleRef.ModulePathPrefix + "fulltext") ? FulltextSearch(query.query),
       //  1 minute).asInstanceOf[List[FulltextResult]]
 

@@ -8,6 +8,6 @@ import spray.routing.Route
  */
 trait RoutingRules {
 
-  def routing(ftsModule: ActorRef)(implicit actorRefFactory: ActorRefFactory): Route
+  def routing(ftsModule: ActorRef, queue: ActorRef)(implicit actorRefFactory: ActorRefFactory): Route
 
 }
