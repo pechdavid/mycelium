@@ -1,6 +1,6 @@
 package cz.pechdavid.webweaver.structured
 
-import com.mongodb.casbah.commons.MongoDBObject
+import com.mongodb.casbah.commons.{MongoDBListBuilder, MongoDBList, MongoDBObject}
 import cz.pechdavid.mycelium.core.module.WorkerModule
 import net.liftweb.json.JsonAST.JValue
 import cz.pechdavid.mycelium.extension.mongo.ConnectionParams
@@ -13,7 +13,7 @@ class StructuredContentProjection(connection: ConnectionParams) extends WorkerMo
 
   def handle = {
     case doc: ParsedHtml =>
-      col += MongoDBObject("url" -> doc.url, "title" -> doc.title)
+      col += MongoDBObject("url" -> doc.url, "title" -> doc.title, "links" -> doc.links)
   }
 
   def extract(parsedPayload: JValue) = {

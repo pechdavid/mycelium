@@ -1,6 +1,5 @@
 package cz.pechdavid.webweaver.crawler
 
-import io.Source
 import cz.pechdavid.mycelium.core.command.CommandHandler
 import akka.event.slf4j.SLF4JLogging
 import dispatch._
@@ -10,18 +9,17 @@ import dispatch._
  */
 class DownloadHandler extends CommandHandler with SLF4JLogging {
   def handle = {
-    case DownloadUrl(url) =>
-
+    case DownloadUrl(u) =>
       // FIXME: max limit
 
       log.debug("Download: " + url)
 
-      val src = Http(host(url) OK as.String)
+      val src = Http(url(u) OK as.String)
 
       val cont = src()
 
       log.debug("Done downloading: " + url)
 
-      List(Downloaded(url, cont))
+      List(Downloaded(u, cont))
   }
 }

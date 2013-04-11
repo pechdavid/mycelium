@@ -27,7 +27,12 @@ class CommandBus extends Actor with ModuleRef with SLF4JLogging {
           handler.handle.isDefinedAt(cmd)
       }.map {
         handler =>
-          handler.handle(cmd)
+          try {
+            handler.handle(cmd)
+          } catch {
+            case ex: Exception =>
+              List.empty
+          }
       }.foreach {
         lst =>
           if (!lst.isEmpty) {

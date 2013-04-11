@@ -10,7 +10,7 @@ import org.fusesource.scalate.{DefaultRenderContext, TemplateEngine}
 import java.io.{PrintWriter, StringWriter, File}
 import spray.http.MediaTypes
 import cz.pechdavid.mycelium.extension.http.RoutingRules
-import cz.pechdavid.webweaver.fts.{FulltextResult, FulltextRecent}
+import cz.pechdavid.webweaver.fts.{FulltextSearch, FulltextResult, FulltextRecent}
 import akka.pattern._
 import concurrent.Await
 import scala.concurrent.duration._
@@ -31,7 +31,11 @@ case object ControllerStats
 
 case object ControllerStructured
 
-case object ControllerRaw
+case class UrlWrapper(url: Option[String])
+
+case class ControllerRaw(url: Option[String])
+
+case class ControllerDownload(url: Option[String])
 
 case class ControllerIndex(queue: Option[String])
 
@@ -88,10 +92,23 @@ object Controller extends RoutingRules with Directives {
       } ~
       path("raw.html") {
         get {
-          respondWithMediaType(MediaTypes.`text/html`) {
-            complete {
-              Await.result(controller ? ControllerRaw, 1 minute).asInstanceOf[String]
-            }
+          parameters('url ?).as(UrlWrapper) {
+            url: UrlWrapper =>
+              respondWithMediaType(MediaTypes.`text/html`) {
+                complete {
+                  Await.result(controller ? ControllerRaw(url.url), 1 minute).asInstanceOf[String]
+                }
+              }
+          }
+        }
+      } ~
+      path("download.html") {
+        get {
+          parameters('url ?).as(UrlWrapper) {
+            url: UrlWrapper =>
+                complete {
+                  Await.result(controller ? ControllerDownload(url.url), 1 minute).asInstanceOf[String]
+                }
           }
         }
       } ~
@@ -116,13 +133,14 @@ object Controller extends RoutingRules with Directives {
       pathPrefix("img") {
         getFromResourceDirectory("img")
       }
+    // FIXME: donwload
   }
 
 
 }
 
 class Controller(rawCon: ConnectionParams, structuredCon: ConnectionParams, graphCon: ConnectionParams,
-                 statsCon: ConnectionParams, ftsModule: ActorRef, queueWorker: ActorRef) extends Actor {
+                 statsCon: ConnectionParams, ftsModule: ActorRef, queueWorker: ActorRef, rawContentTrl: RawContentTrl) extends Actor {
 
 
   val tplEngine = new TemplateEngine(Set(new File("/"), new File("/WEB-INF/scalate"), new File("/WEB-INF/scalate/layouts"),
@@ -150,6 +168,12 @@ class Controller(rawCon: ConnectionParams, structuredCon: ConnectionParams, grap
     writer.toString
   }
 
+  private def recent = {
+    val res = Await.result((ftsModule ? FulltextRecent).mapTo[Array[FulltextResult]], 1 minute)
+
+    "recent" -> res
+  }
+
   def receive = {
     case req: ControllerIndex =>
 
@@ -163,23 +187,31 @@ class Controller(rawCon: ConnectionParams, structuredCon: ConnectionParams, grap
       }
       val q = Await.result((queueWorker ? QueuePeek).mapTo[Iterator[String]], 1 minute)
 
-      val res = Await.result((ftsModule ? FulltextRecent).mapTo[Array[FulltextResult]], 1 minute)
-
-      sender ! render("index.ssp", Map("recent" -> res, "valid" -> valid, "queue" -> q))
+      sender ! render("index.ssp", Map(recent, "valid" -> valid, "queue" -> q))
 
     case query: SearchQuery =>
-      //val lst = Await.result(actorRefFactory.actorFor(ModuleRef.ModulePathPrefix + "fulltext") ? FulltextSearch(query.query),
-      //  1 minute).asInstanceOf[List[FulltextResult]]
+      val q = query.query match {
+        case Some(que) =>
+          Await.result((ftsModule ? FulltextSearch(que)).mapTo[Array[FulltextResult]], 1 minute)
+        case None =>
+          Array.empty[FulltextResult]
+      }
 
-      // FIXME: RECENT!
-
-      sender ! render("search.ssp", Map("query" -> query))
+      sender ! render("search.ssp", Map(recent, "query" -> query, "results" -> q))
 
     case ControllerGraph =>
       sender ! render("graph.ssp")
 
-    case ControllerRaw =>
-      sender ! render("raw.ssp")
+    case raw: ControllerRaw =>
+      sender ! render("raw.ssp", Map(recent, "url" -> raw.url))
+
+    case dwn: ControllerDownload =>
+      dwn.url match {
+        case Some(url) =>
+          sender ! rawContentTrl.byUrl(url)
+        case None =>
+          sender ! "File not found."
+      }
 
     case ControllerStructured =>
       sender ! render("structured.ssp")

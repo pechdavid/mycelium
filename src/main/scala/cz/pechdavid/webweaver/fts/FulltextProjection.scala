@@ -40,6 +40,7 @@ class FulltextProjection extends WorkerModule("fulltextProjection") {
     doc.add(new TextField("title", html.title, Store.YES))
     doc.add(new StringField("url", html.url, Store.YES))
     doc.add(new LongField("insertedAt", System.currentTimeMillis(), Store.NO))
+    doc.add(new StringField("type", "page", Store.NO))
 
     doc
   }
@@ -79,10 +80,9 @@ class FulltextProjection extends WorkerModule("fulltextProjection") {
           sender ! res
       }
     case FulltextRecent =>
+      val query = new TermQuery(new Term("type", "page"))
 
-      val query = new BooleanQuery()
-
-      val res = translateResults(query, 10, Option(new Sort(new SortField("createdAt", Type.LONG, true))))
+      val res = translateResults(query, 10, Option(new Sort(new SortField("insertedAt", Type.LONG, true))))
       sender ! res
   }
 }

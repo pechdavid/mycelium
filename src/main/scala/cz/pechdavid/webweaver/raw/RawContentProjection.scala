@@ -6,7 +6,7 @@ import net.liftweb.json.JsonAST.JValue
 /**
  * Created: 2/24/13 5:48 PM
  */
-class RawContentProjection extends WorkerModule("rawContentProjection") {
+class RawContentProjection() extends WorkerModule("rawContentProjection") {
   def extract(parsedPayload: JValue) = ???
 
   def handle = ???

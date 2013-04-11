@@ -1,15 +1,15 @@
 <%@ var query: cz.pechdavid.webweaver.web.SearchQuery %>
-<%@ var results: List[cz.pechdavid.webweaver.fts.FulltextResult] = Nil %>
+<%@ var results: Array[cz.pechdavid.webweaver.fts.FulltextResult] = Array.empty %>
 
       <h1>Fulltext Search (Lucene)</h1>
 
             <p>Use this for fulltext search:</p>
 
-                <form method="get">
+                <form method="get" class="form-inline">
 
                     <input type="text" name="query" value="${query.query}" onclick="this.value = '';">
 
-                    <input type="submit">
+                    <input type="submit" class="btn btn-primary">
 
                 </form>
 				

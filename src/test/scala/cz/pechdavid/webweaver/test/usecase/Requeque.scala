@@ -5,12 +5,13 @@ import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.junit.JUnitRunner
 import java.util.concurrent.LinkedBlockingDeque
-import cz.pechdavid.webweaver.crawler.{DownloadHandler, WebWeaver, SingleUrlQueue, Downloaded}
+import cz.pechdavid.webweaver.crawler._
 import cz.pechdavid.mycelium.core.module.{StartModule, PostInitialize, ModuleSpec}
 import akka.actor.Props
 import akka.testkit.TestActor
 import cz.pechdavid.mycelium.test.usecase.ConsumingTstModule
-import cz.pechdavid.webweaver.structured.{RequeueHandler, ParsedHtml, ParserEventHandler}
+import cz.pechdavid.webweaver.structured.{ParsedHtml, ParserEventHandler}
+import cz.pechdavid.mycelium.core.module.ModuleSpec
 
 /**
  * Created: 3/8/13 8:10 PM
@@ -24,10 +25,10 @@ class Requeque extends FlatSpec with ShouldMatchers {
 
     val urlQueue = (_: ModuleSpec) => Props(new SingleUrlQueue(queue))
 
-    new WebWeaver(Map("queue" -> urlQueue, "requeue" -> ((_: ModuleSpec) => Props(new RequeueHandler("requeue")))),
+    new WebWeaver(Map("queue" -> urlQueue, "requeueProjection" -> ((_: ModuleSpec) => Props(new RequeueProjection()))),
       List(ModuleSpec("queue"), ModuleSpec("myProjection")),
       List(new DownloadHandler),
-      List(new ParserEventHandler(Set("requeue")))
+      List(new ParserEventHandler(Set("requeueProjection")))
     )
 
     Thread.sleep(15000)

@@ -19,11 +19,17 @@ class EventBus extends Actor with ModuleRef {
         handlers.filter {
           _.handle.isDefinedAt(ev)
         }.map {
-          _.handle(ev)
+          op =>
+            try {
+              op.handle(ev)
+            } catch {
+              case ex: Exception =>
+                Nil
+            }
         }.foreach {
           for (notifyEvent <- _;
-            mod <- notifyEvent.projections;
-            ref = moduleRef(mod)) {
+               mod <- notifyEvent.projections;
+               ref = moduleRef(mod)) {
             ref ! notifyEvent.msg
           }
         }

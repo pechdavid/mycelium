@@ -1,4 +1,4 @@
-<%@ var queue: List[String] = List.empty %>
+<%@ var queue: Iterator[String] = Iterator.empty %>
 <%@ var valid: Boolean = true %>
 
       <h1>Cloud Web Crawler</h1>
@@ -10,7 +10,7 @@
 				<h2>Input new URL for indexing</h2>
 
 					<p>
-                        <form method="get">
+                        <form method="get" class="form-inline">
 
                             #if (!valid)
                                 <p>Invalid url!</p>
@@ -18,19 +18,18 @@
 
                             <input type="text" name="to_queue">
 
-                            <input type="submit" value="Queue url!">
+                            <input type="submit" class="btn btn-primary" value="Queue url!">
                         </form>
                     </p>
 
-					<h3>Current Qeueu</h3>
-
+					<h3>Current Queue</h3>
 
                         #if (queue.isEmpty)
                             <p>The queue is currently empty.</p>
                         #else
                             <ul>
                                 #for(el <- queue)
-                                    <li><a href="$el">$el</a></li>
+                                    <li><a href="${el}">${el}</a></li>
                                 #end
                             </ul>
                         #end
