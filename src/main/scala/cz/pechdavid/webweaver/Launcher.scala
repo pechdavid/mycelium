@@ -9,7 +9,7 @@ import akka.actor.Props
 import web.Controller
 import cz.pechdavid.mycelium.extension.mongo.ConnectionParams
 import cz.pechdavid.webweaver.structured.{StructuredContentProjection, ParserEventHandler}
-import cz.pechdavid.webweaver.raw.RawContentProjection
+import cz.pechdavid.webweaver.raw.{GzipEventHandler, RawContentProjection}
 
 /**
  * Created: 2/22/13 5:46 PM
@@ -44,17 +44,17 @@ object Launcher extends App with Directives {
    *  FIXME: gzip event handler..
    */
   val rawContent = (ms: ModuleSpec) => {
-    // FIXME: CONN
-    Props(new RawContentProjection())
+    Props(new RawContentProjection(conn))
   }
 
-
   new WebWeaver(Map("httpServer" -> httpServer, "fulltextProjection" -> ftsModules,
-      "queue" -> queue, "requeueProjection" -> requeue, "structuredContentProjection" -> structured),
+      "queue" -> queue, "requeueProjection" -> requeue, "structuredContentProjection" -> structured,
+      "rawContentProjection" -> rawContent),
     List(ModuleSpec("fulltextProjection"), ModuleSpec("httpServer"), ModuleSpec("queue"), ModuleSpec("requeueProjection"),
-      ModuleSpec("structuredContentProjection")),
+      ModuleSpec("structuredContentProjection"), ModuleSpec("rawContentProjection")),
     List(new DownloadHandler),
-    List(new ParserEventHandler(Set("requeueProjection", "structuredContentProjection", "fulltextProjection")))
+    List(new ParserEventHandler(Set("requeueProjection", "structuredContentProjection", "fulltextProjection")),
+      new GzipEventHandler(Set("rawContentProjection")))
   )
 
 }

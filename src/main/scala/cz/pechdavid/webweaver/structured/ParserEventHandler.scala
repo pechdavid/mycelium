@@ -7,18 +7,15 @@ import cz.pechdavid.mycelium.core.projection.NotifyProjections
 
 import scala.collection.JavaConversions._
 import java.net.URL
+import org.jsoup.nodes.Document
 
 /**
  * Created: 2/23/13 8:32 PM
  */
 class ParserEventHandler(notify: Set[String]) extends EventHandler {
-  def handle = {
-    case Downloaded(url, cont) =>
-      val doc = Jsoup.parse(cont, url)
 
-      val u = new URL(url)
-
-      val refs = doc.getElementsByTag("a").map {
+  private def refs(u: URL, doc: Document) = {
+    doc.getElementsByTag("a").map {
         _.attr("href")
       }.map {
         _.replaceFirst("#.*$", "")
@@ -27,7 +24,21 @@ class ParserEventHandler(notify: Set[String]) extends EventHandler {
       }.map {
         new URL(u, _).toString
       }.toSet
+  }
 
-      List(NotifyProjections(notify, ParsedHtml(url, doc.title(), refs)))
+  private def images(u: URL, doc: Document) = {
+    doc.getElementsByTag("img").map {
+      _.attr("src")
+    }.map {
+      new URL(u, _).toString
+    }.toSet
+  }
+
+  def handle = {
+    case Downloaded(url, cont) =>
+      val doc = Jsoup.parse(cont, url)
+      val u = new URL(url)
+
+      List(NotifyProjections(notify, ParsedHtml(url, doc.title(), refs(u, doc), images(u, doc))))
   }
 }

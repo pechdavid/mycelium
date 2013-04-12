@@ -70,7 +70,13 @@ class FulltextProjection extends WorkerModule("fulltextProjection") {
       writer.addDocument(prepareDoc(html))
 
     case search: FulltextSearch =>
-      val res = translateResults(parser.parse(search.query), 50)
+      val query = if (search.query.isEmpty) {
+          new TermQuery(new Term("type", "page"))
+      } else {
+        parser.parse(search.query)
+      }
+
+      val res = translateResults(query, 50)
 
       search.targetModule match {
         case Some(x) =>

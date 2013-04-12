@@ -15,15 +15,22 @@ class RequeueProjection extends WorkerModule("requeueProjection") {
 
   def handle = {
     case html: ParsedHtml =>
-      // FIXME: duplicates
-      html.links.map { url =>
-        try {
-          Some(new URL(new URL(html.url), url))
-        } catch {
-          case ex: MalformedURLException => None
-        }
-      }.filter { _.isDefined }.map { _.get }.foreach { u =>
-        moduleRef("queue") ! AddToQueue(u.toString)
+      html.links.map {
+        url =>
+          try {
+            Some(new URL(new URL(html.url), url))
+          } catch {
+            case ex: MalformedURLException => None
+          }
+      }.filter {
+        _.isDefined
+      }.map {
+        _.get
+      }.filter {
+        u => AddToQueue.isValid(u.toString)
+      }.foreach {
+        u =>
+          moduleRef("queue") ! AddToQueue(u.toString)
       }
   }
 }

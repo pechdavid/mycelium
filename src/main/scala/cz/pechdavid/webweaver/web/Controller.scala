@@ -140,7 +140,7 @@ object Controller extends RoutingRules with Directives {
 }
 
 class Controller(rawCon: ConnectionParams, structuredCon: ConnectionParams, graphCon: ConnectionParams,
-                 statsCon: ConnectionParams, ftsModule: ActorRef, queueWorker: ActorRef, rawContentTrl: RawContentTrl) extends Actor {
+                 statsCon: ConnectionParams, ftsModule: ActorRef, queueWorker: ActorRef) extends Actor {
 
 
   val tplEngine = new TemplateEngine(Set(new File("/"), new File("/WEB-INF/scalate"), new File("/WEB-INF/scalate/layouts"),
@@ -208,7 +208,12 @@ class Controller(rawCon: ConnectionParams, structuredCon: ConnectionParams, grap
     case dwn: ControllerDownload =>
       dwn.url match {
         case Some(url) =>
-          sender ! rawContentTrl.byUrl(url)
+          rawTrl.byUrl(url) match {
+            case Some(cont) =>
+                sender ! cont
+            case None =>
+                sender ! "File not found."
+          }
         case None =>
           sender ! "File not found."
       }

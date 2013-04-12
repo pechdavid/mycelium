@@ -10,6 +10,6 @@ case class AddToQueue(url: String)
 
 object AddToQueue {
   def isValid(url: String) = {
-    Try(new URL(url)).isSuccess
+    Try(new URL(url)).isSuccess || url.startsWith("http")
   }
 }

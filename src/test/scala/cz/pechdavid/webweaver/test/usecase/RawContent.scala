@@ -42,8 +42,6 @@ class RawContent extends FlatSpec with ShouldMatchers {
     docOp.isDefined should be(true)
     val doc = docOp.get
     doc.size should be > (0)
-    doc.inputStream.available() should be > (0)
-    doc.inputStream.close()
   }
 
   it should "Process raw event handler" in {
