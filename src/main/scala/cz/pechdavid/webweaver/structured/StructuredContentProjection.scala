@@ -13,7 +13,7 @@ class StructuredContentProjection(connection: ConnectionParams) extends WorkerMo
 
   def handle = {
     case doc: ParsedHtml =>
-      col += MongoDBObject("url" -> doc.url, "title" -> doc.title, "links" -> doc.links)
+      col += MongoDBObject("url" -> doc.url, "title" -> doc.title, "links" -> doc.links, "images" -> doc.images)
   }
 
   def extract(parsedPayload: JValue) = {

@@ -7,7 +7,7 @@
 
 				<p><a href="download.html?url=${java.net.URLEncoder.encode(url.get)}">Download the raw document!</a></p>
 
-				<p>View <a href="structured.html?url=${url.get}">structured</a> version of the document or <a href="graph.html?url=${url.get}">graph</a> links of the document.</p>
+				<p>View <a href="structured.html?url=${java.net.URLEncoder.encode(url.get)}">structured</a> version of the document or <a href="graph.html?url=${java.net.URLEncoder.encode(url.get)}">graph</a> links of the document.</p>
         #else
             <p>Come back with specific URL (select recent).</p>
         #end

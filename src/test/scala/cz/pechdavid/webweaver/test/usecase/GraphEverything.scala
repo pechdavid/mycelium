@@ -19,15 +19,15 @@ class GraphEverything extends FlatSpec with ShouldMatchers {
 
   it should "Store into graph" in {
     val con = ConnectionParams("localhost", "mycelium")
-    val ww = new WebWeaver(Map("graph" -> ((_: ModuleSpec) => Props(new GraphProjection("graph")))),
-      List(ModuleSpec("graph")),
+    val ww = new WebWeaver(Map("graphProjection" -> ((_: ModuleSpec) => Props(new GraphProjection))),
+      List(ModuleSpec("graphProjection")),
       List.empty,
       List.empty
     )
 
     Thread.sleep(1000)
 
-    ww.node.moduleRef("graph") ! ParsedHtml("www.root.cz", "Ukazka textu", Set("/registrace/", "http://www.root.cz/omega/"))
+    ww.node.moduleRef("graphProjection") ! ParsedHtml("www.root.cz", "Ukazka textu", Set("/registrace/", "http://www.root.cz/omega/"))
 
     Thread.sleep(1000)
 

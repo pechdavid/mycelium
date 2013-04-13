@@ -36,6 +36,9 @@ allprojects {
 		maven {
 			url "http://repo.spray.io/"
 		}
+		maven {
+			url "https://raw.github.com/FaKod/fakod-mvn-repo/master/snapshots"
+		}
 	}
 }
 
@@ -83,6 +86,11 @@ dependencies {
 	compile 'io.spray:spray-routing:1.1-M7'
 	compile 'org.fusesource.scalate:scalate-core_2.10:1.6.1'
 
+	compile("org.neo4j:neo4j-scala:0.2.0-M2-SNAPSHOT") {
+	  exclude group: "org.apache.lucene"
+	  exclude group: "org.neo4j", module: "neo4j-lucene-index"
+	}
+
 	compile "com.typesafe.akka:akka-actor_2.10:2.1.0"
 	compile "com.typesafe.akka:akka-slf4j_2.10:2.1.0"
 	testCompile "com.typesafe.akka:akka-testkit_2.10:2.1.0"
@@ -101,7 +109,7 @@ apply plugin: 'idea'
 apply plugin: 'eclipse'
 
 task wrapper(type: Wrapper) {
-		gradleVersion = '1.4'
+		gradleVersion = '1.5'
 }
 
 task testScala(overwrite: true, dependsOn: testClasses) << {

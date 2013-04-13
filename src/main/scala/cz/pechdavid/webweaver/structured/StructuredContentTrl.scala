@@ -15,6 +15,17 @@ class StructuredContentTrl(connection: ConnectionParams) {
   val col = connection.collection(StructuredContentTrl.Collection)
 
   def byUrl(url: String) = {
-    col.findOne(MongoDBObject("url" -> url))
+    col.findOne(MongoDBObject("url" -> url)) match {
+      case Some(dbo) =>
+        Option(ParsedHtml(dbo.as[String]("url"), dbo.as[String]("title"), dbo.as[MongoDBList]("links").toSet.map {
+          el: Any =>
+            el.asInstanceOf[String]
+        }, dbo.as[MongoDBList]("images").toSet.map {
+          el: Any =>
+            el.asInstanceOf[String]
+        }))
+      case None =>
+        None
+    }
   }
 }

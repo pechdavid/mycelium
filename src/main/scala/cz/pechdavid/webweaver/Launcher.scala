@@ -10,11 +10,14 @@ import web.Controller
 import cz.pechdavid.mycelium.extension.mongo.ConnectionParams
 import cz.pechdavid.webweaver.structured.{StructuredContentProjection, ParserEventHandler}
 import cz.pechdavid.webweaver.raw.{GzipEventHandler, RawContentProjection}
+import cz.pechdavid.webweaver.graph.GraphProjection
 
 /**
  * Created: 2/22/13 5:46 PM
  */
+
 object Launcher extends App with Directives {
+
 
   // FIXME: config
   val conn = ConnectionParams("localhost", "mycelium")
@@ -33,27 +36,28 @@ object Launcher extends App with Directives {
   }
 
   val requeue = (ms: ModuleSpec) => {
-    Props(new RequeueProjection)
+    Props(new RequeueProjection(Option(Set("raynet.cz", "simlog.cz"))))
   }
 
   val structured = (ms: ModuleSpec) => {
     Props(new StructuredContentProjection(conn))
   }
 
-  /*
-   *  FIXME: gzip event handler..
-   */
   val rawContent = (ms: ModuleSpec) => {
     Props(new RawContentProjection(conn))
   }
 
+  val graphProjection = (ms: ModuleSpec) => {
+    Props(new GraphProjection)
+  }
+
   new WebWeaver(Map("httpServer" -> httpServer, "fulltextProjection" -> ftsModules,
       "queue" -> queue, "requeueProjection" -> requeue, "structuredContentProjection" -> structured,
-      "rawContentProjection" -> rawContent),
+      "rawContentProjection" -> rawContent, "graphProjection" -> graphProjection),
     List(ModuleSpec("fulltextProjection"), ModuleSpec("httpServer"), ModuleSpec("queue"), ModuleSpec("requeueProjection"),
-      ModuleSpec("structuredContentProjection"), ModuleSpec("rawContentProjection")),
+      ModuleSpec("structuredContentProjection"), ModuleSpec("rawContentProjection"), ModuleSpec("graphProjection")),
     List(new DownloadHandler),
-    List(new ParserEventHandler(Set("requeueProjection", "structuredContentProjection", "fulltextProjection")),
+    List(new ParserEventHandler(Set("requeueProjection", "structuredContentProjection", "fulltextProjection", "graphProjection")),
       new GzipEventHandler(Set("rawContentProjection")))
   )
 

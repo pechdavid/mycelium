@@ -69,6 +69,6 @@ class ContentParsing extends FlatSpec with ShouldMatchers {
 
     docOp.isDefined should be(true)
     val doc = docOp.get
-    doc.get("url") should be("www.root.cz")
+    doc.url should be("www.root.cz")
   }
 }

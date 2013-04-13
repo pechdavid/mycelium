@@ -1,23 +1,41 @@
+<%@ var url: Option[String] = None %>
+<%@ var doc: Option[cz.pechdavid.webweaver.structured.ParsedHtml] = None %>
 
       <h1>Structured Content (various parsers, MongoDB)</h1>
 
-				<h2>www.domena.cz/doc/</h2>
+      #if (url.isDefined)
+          <h2>${url.get}</h2>
 
-					<ul>
-						<li>Title: muj dokument</li>
-						<li>Headers
-							<ul>
-								<li>Header: value</li>
-								<li>Header: value</li>
-								<li>Header: value</li>
-							</ul>
-						</li>
-						<li>Images
-							<ul>
-								<li>img1</li>
-								<li>image2</li>
-							</ul>
-						</li>
-					</ul>
 
-				<p>View <a>raw</a> version of the document or <a>graph</a> links of the document.</p>
+            <ul>
+                <li>Title <strong>${doc.get.title}</strong></li>
+
+                #if (!doc.get.links.isEmpty)
+                    <li>Links
+                        <ul>
+                            #for(el <- doc.get.links)
+                                <li><a href="${el}">${el}</a></li>
+                            #end
+                        </ul>
+                    </li>
+                #end
+
+
+                #if (!doc.get.images.isEmpty)
+                    <li>Images
+                        <ul>
+                            #for(el <- doc.get.images)
+                                <li><img src="${el}" width="100" height="100" alt="${el}"></li>
+                            #end
+                        </ul>
+                    </li>
+                #end
+
+
+            </ul>
+
+
+            <p>View <a href="raw.html?url=${java.net.URLEncoder.encode(url.get)}">raw</a> version of the document or <a href="graph.html?url=${java.net.URLEncoder.encode(url.get)}">graph</a> links of the document.</p>
+      #else
+          <p>Come back with specific URL (select recent).</p>
+      #end

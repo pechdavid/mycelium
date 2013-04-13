@@ -4,7 +4,7 @@ import spray.routing.Directives
 import cz.pechdavid.webweaver.raw.RawContentTrl
 import cz.pechdavid.mycelium.extension.mongo.ConnectionParams
 import cz.pechdavid.webweaver.structured.StructuredContentTrl
-import cz.pechdavid.webweaver.graph.GraphTrl
+import cz.pechdavid.webweaver.graph.{TreeNode, GraphTrl}
 import akka.actor.{Actor, Props, ActorRefFactory, ActorRef}
 import org.fusesource.scalate.{DefaultRenderContext, TemplateEngine}
 import java.io.{PrintWriter, StringWriter, File}
@@ -16,6 +16,8 @@ import concurrent.Await
 import scala.concurrent.duration._
 import akka.util.Timeout
 import cz.pechdavid.webweaver.crawler.{QueuePeek, AddToQueue}
+import scala.util.parsing.json.JSON
+import net.liftweb.json.{JsonAST, Printer, Extraction}
 
 /**
  * Created: 3/10/13 1:31 PM
@@ -25,11 +27,13 @@ case class SearchQuery(query: Option[String])
 
 case class ToQueue(to_queue: Option[String])
 
-case object ControllerGraph
+case class ControllerGraph(url: Option[String])
+
+case class ControllerGraphJson(url: Option[String])
 
 case object ControllerStats
 
-case object ControllerStructured
+case class ControllerStructured(url: Option[String])
 
 case class UrlWrapper(url: Option[String])
 
@@ -51,11 +55,26 @@ object Controller extends RoutingRules with Directives {
         redirect("index.html")
       }
     } ~
+      path("graph.json") {
+        get {
+          parameters('url ?).as(UrlWrapper) {
+            url: UrlWrapper =>
+              respondWithMediaType(MediaTypes.`text/html`) {
+                complete {
+                  Await.result(controller ? ControllerGraphJson(url.url), 1 minute).asInstanceOf[String]
+                }
+              }
+          }
+        }
+      } ~
       path("graph.html") {
         get {
-          respondWithMediaType(MediaTypes.`text/html`) {
-            complete {
-              Await.result(controller ? ControllerGraph, 1 minute).asInstanceOf[String]
+          parameters('url ?).as(UrlWrapper) {
+            url: UrlWrapper =>
+            respondWithMediaType(MediaTypes.`text/html`) {
+              complete {
+                Await.result(controller ? ControllerGraph(url.url), 1 minute).asInstanceOf[String]
+              }
             }
           }
         }
@@ -83,10 +102,13 @@ object Controller extends RoutingRules with Directives {
       } ~
       path("structured.html") {
         get {
-          respondWithMediaType(MediaTypes.`text/html`) {
-            complete {
-              Await.result(controller ? ControllerStructured, 1 minute).asInstanceOf[String]
-            }
+          parameters('url ?).as(UrlWrapper) {
+            url: UrlWrapper =>
+              respondWithMediaType(MediaTypes.`text/html`) {
+                complete {
+                  Await.result(controller ? ControllerStructured(url.url), 1 minute).asInstanceOf[String]
+                }
+              }
           }
         }
       } ~
@@ -137,16 +159,19 @@ object Controller extends RoutingRules with Directives {
   }
 
 
+  val tplEngine = {
+    val tplEngine = new TemplateEngine(Set(new File("/"), new File("/WEB-INF/scalate"), new File("/WEB-INF/scalate/layouts"),
+      new File("/WEB-INF"), new File("src/main/webapp/WEB-INF"), new File("src/main/webapp/WEB-INF/scalate/layouts"),
+      new File("src/main/webapp"), new File("src/main/webapp/WEB-INF/scalate")))
+    tplEngine.boot
+    tplEngine
+  }
 }
+
+
 
 class Controller(rawCon: ConnectionParams, structuredCon: ConnectionParams, graphCon: ConnectionParams,
                  statsCon: ConnectionParams, ftsModule: ActorRef, queueWorker: ActorRef) extends Actor {
-
-
-  val tplEngine = new TemplateEngine(Set(new File("/"), new File("/WEB-INF/scalate"), new File("/WEB-INF/scalate/layouts"),
-    new File("/WEB-INF"), new File("src/main/webapp/WEB-INF"), new File("src/main/webapp/WEB-INF/scalate/layouts"),
-    new File("src/main/webapp"), new File("src/main/webapp/WEB-INF/scalate")))
-  tplEngine.boot
 
   val rawTrl = new RawContentTrl(rawCon)
   val structuredTrl = new StructuredContentTrl(structuredCon)
@@ -157,7 +182,7 @@ class Controller(rawCon: ConnectionParams, structuredCon: ConnectionParams, grap
 
   private def render(tpl: String, map: Map[String, Any] = Map.empty) = {
     val writer = new StringWriter()
-    val renderContext = new DefaultRenderContext("index.html", tplEngine, new PrintWriter(writer))
+    val renderContext = new DefaultRenderContext(tpl, Controller.tplEngine, new PrintWriter(writer))
 
     val updatedMap = map ++ Map("page" -> tpl.replaceAll("\\.ssp$", ""))
 
@@ -172,6 +197,11 @@ class Controller(rawCon: ConnectionParams, structuredCon: ConnectionParams, grap
     val res = Await.result((ftsModule ? FulltextRecent).mapTo[Array[FulltextResult]], 1 minute)
 
     "recent" -> res
+  }
+
+  private def renderJson(node: TreeNode) = {
+    implicit val formats = net.liftweb.json.DefaultFormats
+    Printer.pretty(JsonAST.render(Extraction.decompose(node)))
   }
 
   def receive = {
@@ -199,8 +229,17 @@ class Controller(rawCon: ConnectionParams, structuredCon: ConnectionParams, grap
 
       sender ! render("search.ssp", Map(recent, "query" -> query, "results" -> q))
 
-    case ControllerGraph =>
-      sender ! render("graph.ssp")
+    case req: ControllerGraph =>
+      sender ! render("graph.ssp", Map(recent, "url" -> req.url))
+
+    case req: ControllerGraphJson =>
+      req.url match {
+        case Some(u) =>
+          sender ! renderJson(graphTrl.treeFromUrl(u))
+
+        case None =>
+          sender ! "URL not indexed"
+      }
 
     case raw: ControllerRaw =>
       sender ! render("raw.ssp", Map(recent, "url" -> raw.url))
@@ -218,8 +257,16 @@ class Controller(rawCon: ConnectionParams, structuredCon: ConnectionParams, grap
           sender ! "File not found."
       }
 
-    case ControllerStructured =>
-      sender ! render("structured.ssp")
+    case req: ControllerStructured =>
+
+      val doc = req.url match {
+        case Some(u) =>
+          structuredTrl.byUrl(u)
+        case None =>
+            None
+      }
+
+      sender ! render("structured.ssp", Map(recent, "url" -> req.url, "doc" -> doc))
 
     case ControllerStats =>
       sender ! render("stats.ssp")

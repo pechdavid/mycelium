@@ -8,7 +8,7 @@ import java.net.{MalformedURLException, URL}
 /**
  * Created: 4/11/13 5:39 PM
  */
-class RequeueProjection extends WorkerModule("requeueProjection") {
+class RequeueProjection(allowedHosts: Option[Set[String]]) extends WorkerModule("requeueProjection") {
   def extract(parsedPayload: JValue) = {
     parsedPayload.extract[ParsedHtml]
   }
@@ -28,6 +28,8 @@ class RequeueProjection extends WorkerModule("requeueProjection") {
         _.get
       }.filter {
         u => AddToQueue.isValid(u.toString)
+      }.filter {
+        u => allowedHosts.isEmpty || allowedHosts.get.contains(u.getHost)
       }.foreach {
         u =>
           moduleRef("queue") ! AddToQueue(u.toString)
