@@ -38,7 +38,7 @@ object Launcher extends App with Directives {
   }
 
   val requeue = (ms: ModuleSpec) => {
-    Props(new RequeueProjection(Option(Set("raynet.cz", "www.simlog.cz", "cs.wikipedia.org"))))
+    Props(new RequeueProjection(Option(Set("raynet.cz", "www.raynetmarketing.cz", "www.simlog.cz", "cs.wikipedia.org"))))
   }
 
   val structured = (ms: ModuleSpec) => {

@@ -24,10 +24,12 @@
 
 // From http://mkweb.bcgsc.ca/circos/guide/tables/
 var matrix = [
-  [11975,  5871000, 8916, 2868],
-  [ 1951, 10048, 2060, 6171],
-  [ 8010, 16145, 8090, 8045],
-  [ 1013,   990,  940, 6907]
+    #for (d <- domains)
+        #if (d != domains.head)
+            ,
+        #end
+        [ ${d.matrix.mkString(", ")} ]
+    #end
 ];
 
 var chord = d3.layout.chord()
@@ -42,7 +44,7 @@ var width = 960,
 
 var fill = d3.scale.ordinal()
     .domain(d3.range(${domains.length}))
-    .range(["${domains.map{ _.color }.mkString("\", \")}"]);
+    .range(["${unescape(domains.map(_.color).mkString("\", \""))}"]);
 
 var svg = d3.select(".draw").append("svg")
     .attr("width", width)

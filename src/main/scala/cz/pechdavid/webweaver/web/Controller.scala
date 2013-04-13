@@ -16,8 +16,9 @@ import concurrent.Await
 import scala.concurrent.duration._
 import akka.util.Timeout
 import cz.pechdavid.webweaver.crawler.{QueuePeek, AddToQueue}
-import scala.util.parsing.json.JSON
 import net.liftweb.json.{JsonAST, Printer, Extraction}
+import cz.pechdavid.webweaver.stats.DomainTrl
+import dispatch.url
 
 /**
  * Created: 3/10/13 1:31 PM
@@ -71,11 +72,11 @@ object Controller extends RoutingRules with Directives {
         get {
           parameters('url ?).as(UrlWrapper) {
             url: UrlWrapper =>
-            respondWithMediaType(MediaTypes.`text/html`) {
-              complete {
-                Await.result(controller ? ControllerGraph(url.url), 1 minute).asInstanceOf[String]
+              respondWithMediaType(MediaTypes.`text/html`) {
+                complete {
+                  Await.result(controller ? ControllerGraph(url.url), 1 minute).asInstanceOf[String]
+                }
               }
-            }
           }
         }
       } ~
@@ -128,9 +129,9 @@ object Controller extends RoutingRules with Directives {
         get {
           parameters('url ?).as(UrlWrapper) {
             url: UrlWrapper =>
-                complete {
-                  Await.result(controller ? ControllerDownload(url.url), 1 minute).asInstanceOf[String]
-                }
+              complete {
+                Await.result(controller ? ControllerDownload(url.url), 1 minute).asInstanceOf[String]
+              }
           }
         }
       } ~
@@ -169,14 +170,13 @@ object Controller extends RoutingRules with Directives {
 }
 
 
-
 class Controller(rawCon: ConnectionParams, structuredCon: ConnectionParams, graphCon: ConnectionParams,
                  statsCon: ConnectionParams, ftsModule: ActorRef, queueWorker: ActorRef) extends Actor {
 
   val rawTrl = new RawContentTrl(rawCon)
   val structuredTrl = new StructuredContentTrl(structuredCon)
   val graphTrl = new GraphTrl(graphCon)
-  //val statsTrl = new StatsTrl(statsCon)
+  val domainTrl = new DomainTrl
 
   implicit val timeout = Timeout(1 minute)
 
@@ -249,9 +249,9 @@ class Controller(rawCon: ConnectionParams, structuredCon: ConnectionParams, grap
         case Some(url) =>
           rawTrl.byUrl(url) match {
             case Some(cont) =>
-                sender ! cont
+              sender ! cont
             case None =>
-                sender ! "File not found."
+              sender ! "File not found."
           }
         case None =>
           sender ! "File not found."
@@ -263,12 +263,13 @@ class Controller(rawCon: ConnectionParams, structuredCon: ConnectionParams, grap
         case Some(u) =>
           structuredTrl.byUrl(u)
         case None =>
-            None
+          None
       }
 
       sender ! render("structured.ssp", Map(recent, "url" -> req.url, "doc" -> doc))
 
     case ControllerStats =>
-      sender ! render("stats.ssp")
+      val domains = domainTrl.statRandomDomains
+      sender ! render("stats.ssp", Map(recent, "domains" -> domains))
   }
 }

@@ -12,10 +12,12 @@ class DownloadUseCase extends CommandHandler {
   def handle = {
     case req: AddNewLink =>
 
-      val host = DomainHostRepository.singleton.loadCreateByHost(req.host)
+      val downloadedUrl = new URL(req.url)
+
+      val host = DomainHostRepository.singleton.loadCreateByHost(downloadedUrl.getHost)
 
       for (l <- req.links;
-           res = Try(new URL(l))
+           res = Try(new URL(downloadedUrl, l))
            if (res.isSuccess)
       ) {
 

@@ -9,7 +9,7 @@ trait EventStore {
 
   def save(root: AggregateRoot)
 
-  def listRoots = Set[String]
+  def listRoots: Set[String]
 
-  def loadForRoot = List[Event]
+  def loadForRoot: List[Event]
 }
