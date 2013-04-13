@@ -6,11 +6,8 @@ import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.junit.JUnitRunner
 import java.util.concurrent.LinkedBlockingDeque
 import cz.pechdavid.webweaver.crawler._
-import cz.pechdavid.mycelium.core.module.{StartModule, PostInitialize, ModuleSpec}
 import akka.actor.Props
-import akka.testkit.TestActor
-import cz.pechdavid.mycelium.test.usecase.ConsumingTstModule
-import cz.pechdavid.webweaver.structured.{ParsedHtml, ParserEventHandler}
+import cz.pechdavid.webweaver.structured.ParserEventHandler
 import cz.pechdavid.mycelium.core.module.ModuleSpec
 
 /**
@@ -33,9 +30,7 @@ class Requeque extends FlatSpec with ShouldMatchers {
 
     Thread.sleep(15000)
 
-    queue.isEmpty should be (false)
+    queue.isEmpty should be(false)
     queue.getFirst should not be ("www.root.cz")
   }
-
-
 }

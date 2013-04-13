@@ -77,41 +77,45 @@ object Neo4jDb extends Neo4jWrapper with SingletonEmbeddedGraphDatabaseServicePr
         implicit neo =>
           val start = findOrCreate(base)
           Traversal.
-            traversal().depthFirst()
+            traversal().breadthFirst()
             .relationships("LINKS", Direction.OUTGOING)
-            .evaluator(Evaluators.includingDepths(1, 3))
+            .evaluator(Evaluators.includingDepths(1, 2))
             .traverse(start)
       }
     )
   }
 
   private def translate(base: String, traverser: Traverser) = {
-    val stack = new mutable.Stack[TreeNode]
-    stack.push(toNode(base))
+    val ret = TreeNode(toNode(base))
 
     for (each <- traverser.iterator().toList
       if each.endNode().hasProperty("name")) {
 
-      val label = each.endNode().getProperty("name").asInstanceOf[String]
+      var currentNode = ret
 
-      if (each.length() > stack.length - 1) {
-        stack.push(toNode(label))
-      } else if (each.length() < stack.length - 1) {
-        while (each.length() < stack.length) {
-          stack.pop()
+      for (rel <- each.relationships
+        if currentNode.children.length < 80) {
+        val label = toNode(rel.getEndNode.getProperty("name").asInstanceOf[String])
+
+        val newNode = currentNode.children.find {
+          _.name == label
+        } match {
+          case Some(innerNode) =>
+            innerNode
+          case None =>
+            TreeNode(label)
         }
 
-        stack.top.children += toNode(label)
-      } else {
-        stack.top.children += toNode(label)
+        currentNode.children += newNode
+        currentNode = newNode
       }
     }
 
-    stack.apply(0)
+    ret
   }
 
   private def toNode(nodeName: String) = {
-    TreeNode(nodeName.replaceFirst("http://", "").replaceFirst("https://", ""))
+    nodeName.replaceFirst("http://", "").replaceFirst("https://", "")
   }
 
 }

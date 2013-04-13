@@ -11,6 +11,8 @@ import cz.pechdavid.mycelium.extension.mongo.ConnectionParams
 import cz.pechdavid.webweaver.structured.{StructuredContentProjection, ParserEventHandler}
 import cz.pechdavid.webweaver.raw.{GzipEventHandler, RawContentProjection}
 import cz.pechdavid.webweaver.graph.GraphProjection
+import cz.pechdavid.webweaver.stats.{DomainProjection, DownloadUseCase, ResendProjection}
+import cz.pechdavid.mycelium.core.domain.RelayEventHandler
 
 /**
  * Created: 2/22/13 5:46 PM
@@ -36,7 +38,7 @@ object Launcher extends App with Directives {
   }
 
   val requeue = (ms: ModuleSpec) => {
-    Props(new RequeueProjection(Option(Set("raynet.cz", "simlog.cz"))))
+    Props(new RequeueProjection(Option(Set("raynet.cz", "www.simlog.cz", "cs.wikipedia.org"))))
   }
 
   val structured = (ms: ModuleSpec) => {
@@ -51,13 +53,24 @@ object Launcher extends App with Directives {
     Props(new GraphProjection)
   }
 
+  val resendProjection = (ms: ModuleSpec) => {
+    Props(new ResendProjection)
+  }
+
+  val domainProjection = (ms: ModuleSpec) => {
+    Props(new DomainProjection)
+  }
+
   new WebWeaver(Map("httpServer" -> httpServer, "fulltextProjection" -> ftsModules,
       "queue" -> queue, "requeueProjection" -> requeue, "structuredContentProjection" -> structured,
-      "rawContentProjection" -> rawContent, "graphProjection" -> graphProjection),
+      "rawContentProjection" -> rawContent, "graphProjection" -> graphProjection, "resendProjection" -> resendProjection,
+      "domainProjection" -> domainProjection),
     List(ModuleSpec("fulltextProjection"), ModuleSpec("httpServer"), ModuleSpec("queue"), ModuleSpec("requeueProjection"),
-      ModuleSpec("structuredContentProjection"), ModuleSpec("rawContentProjection"), ModuleSpec("graphProjection")),
-    List(new DownloadHandler),
-    List(new ParserEventHandler(Set("requeueProjection", "structuredContentProjection", "fulltextProjection", "graphProjection")),
+      ModuleSpec("structuredContentProjection"), ModuleSpec("rawContentProjection"), ModuleSpec("graphProjection"),
+      ModuleSpec("resendProjection"), ModuleSpec("domainProjection")),
+    List(new DownloadHandler, new DownloadUseCase),
+    List(new ParserEventHandler(Set("requeueProjection", "structuredContentProjection", "fulltextProjection", "graphProjection",
+        "resendProjection")), new RelayEventHandler(Set("domainProjection")),
       new GzipEventHandler(Set("rawContentProjection")))
   )
 
