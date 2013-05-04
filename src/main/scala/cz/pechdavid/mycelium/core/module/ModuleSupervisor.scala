@@ -8,8 +8,6 @@ import akka.event.slf4j.SLF4JLogging
  */
 class ModuleSupervisor extends ModuleRef with SLF4JLogging {
 
-  // FIXME: supervisor strategy
-
   def receive = {
     case StartNewModule(name, props) =>
       log.debug("Registering module: " + name + ", sender: " + sender.toString())

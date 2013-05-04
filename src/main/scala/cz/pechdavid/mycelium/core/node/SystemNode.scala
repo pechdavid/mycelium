@@ -27,12 +27,6 @@ class SystemNode(launchPatterns: Map[String, (ModuleSpec) => Props] = Map.empty)
   val producer = system.actorOf(Props(new Producer), "producer")
   val lifecycle = new ModuleLifecycle(supervisor)
 
-  // FIXME: ping to assign number + name
-  // FIXME: local shortcut for delivery
-  // FIXME: deadwatch module
-  // FIXME: shortcut for status
-  // FIXME: depency watcher
-
   def boot(specs: Set[ModuleSpec], run: List[String], appendToRunList: Boolean = true) {
     container.localAvailable ++= specs
 
@@ -50,9 +44,6 @@ class SystemNode(launchPatterns: Map[String, (ModuleSpec) => Props] = Map.empty)
     }
 
     log.info("Boot sequence: " + correctOrder + ", from run list: " + completeRunList)
-
-    // FIXME: missing deps
-    // FIXME: only required
 
     correctOrder.foreach {
       ordered =>

@@ -19,7 +19,6 @@ import org.scalatest.junit.JUnitRunner
 class NodeCrash extends FlatSpec with ShouldMatchers {
 
   it should "Return error message after timeout and recover" in {
-    // FIXME: start with lower ping timeout
     val queue = new LinkedBlockingDeque[TestActor.Message]()
 
     val nodeB = new SystemNode(Map("B" -> ((_) => Props[EmptyActor])))

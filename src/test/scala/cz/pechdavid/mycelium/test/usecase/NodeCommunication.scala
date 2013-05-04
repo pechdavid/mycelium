@@ -15,8 +15,6 @@ import org.scalatest.junit.JUnitRunner
 class NodeCommunication extends FlatSpec with ShouldMatchers {
 
   it should "Flexible keep the run list up" in {
-    // FIXME: start with lower ping timeout
-
     val allMods = Map("A" -> ((_: ModuleSpec) => Props[EmptyActor]), "B" -> ((_: ModuleSpec) => Props[EmptyActor]),
       "C" -> ((_: ModuleSpec) => Props[EmptyActor]))
     val nodeA = new SystemNode(allMods)
@@ -67,8 +65,6 @@ class NodeCommunication extends FlatSpec with ShouldMatchers {
   }
 
   it should "Flexible keep the run list up only" in {
-    // FIXME: start with lower ping timeout
-
     val allMods = Map("A" -> ((_: ModuleSpec) => Props[EmptyActor]), "B" -> ((_: ModuleSpec) => Props[EmptyActor]),
       "C" -> ((_: ModuleSpec) => Props[EmptyActor]))
     val nodeA = new SystemNode(allMods)
@@ -119,8 +115,6 @@ class NodeCommunication extends FlatSpec with ShouldMatchers {
   }
 
   it should "Dynamically start up dependencies" in {
-    // FIXME: start with lower ping timeout
-
     val allMods = Map("A" -> ((_: ModuleSpec) => Props[EmptyActor]), "B" -> ((_: ModuleSpec) => Props[EmptyActor]))
     val nodeA = new SystemNode(allMods)
     val nodeB = new SystemNode(allMods)

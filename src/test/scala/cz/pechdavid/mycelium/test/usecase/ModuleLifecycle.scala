@@ -39,7 +39,6 @@ class ModuleLifecycle extends FlatSpec with ShouldMatchers {
   }
 
   it should "Return error message after timeout" in {
-    // FIXME: start with lower timeout
     val queue = new LinkedBlockingDeque[TestActor.Message]()
 
     val node = new SystemNode(Map("A" -> ((_) => TestActor.props(queue))))

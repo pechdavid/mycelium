@@ -156,7 +156,6 @@ object Controller extends RoutingRules with Directives {
       pathPrefix("img") {
         getFromResourceDirectory("img")
       }
-    // FIXME: donwload
   }
 
 

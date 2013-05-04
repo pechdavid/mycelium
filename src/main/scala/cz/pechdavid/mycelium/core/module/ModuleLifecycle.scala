@@ -39,7 +39,6 @@ class ModuleLifecycle(supervisor: ActorRef) {
   }
 
   def start(name: String) {
-    // FIXME check deps...
     supervisor ! Forward(name, StartModule)
   }
 

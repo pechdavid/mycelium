@@ -10,8 +10,6 @@ import dispatch._
 class DownloadHandler extends CommandHandler with SLF4JLogging {
   def handle = {
     case DownloadUrl(u) =>
-      // FIXME: max limit
-
       log.debug("Download: " + url)
 
       val src = Http(url(u) OK as.String)

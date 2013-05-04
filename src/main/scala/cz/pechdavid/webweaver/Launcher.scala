@@ -21,10 +21,8 @@ import cz.pechdavid.mycelium.core.domain.RelayEventHandler
 object Launcher extends App with Directives {
 
 
-  // FIXME: config
   val conn = ConnectionParams("localhost", "mycelium")
 
-  // FIXME: config
   val httpServer = (ms: ModuleSpec) => {
     Props(new WebServerModule(ms.name, "localhost", 8080)(Controller))
   }

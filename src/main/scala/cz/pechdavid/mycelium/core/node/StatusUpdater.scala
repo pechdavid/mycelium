@@ -60,7 +60,6 @@ class StatusUpdater(node: SystemNode) extends ConsumerProxy {
         NodeStatus(node.name, node.container.localAvailable, node.container.localRunning, System.currentTimeMillis()), ""), "nodeUpdates", false)
 
     case RefreshProxies =>
-      // FIXME: .. synchronizace casu ..
       node.container.status = node.container.status.filter {
         System.currentTimeMillis() - _.timestampMillis < 1000
       }
