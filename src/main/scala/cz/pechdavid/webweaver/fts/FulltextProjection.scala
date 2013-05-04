@@ -1,3 +1,9 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.webweaver.fts
 
 import cz.pechdavid.mycelium.core.module.WorkerModule
@@ -16,6 +22,8 @@ import scala.Some
 import org.apache.lucene.search.SortField.Type
 
 /**
+ * Lucene fulltext projection
+ *
  * Created: 2/24/13 5:45 PM
  */
 class FulltextProjection extends WorkerModule("fulltextProjection") {

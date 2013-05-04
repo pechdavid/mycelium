@@ -1,3 +1,9 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.mycelium.core.module
 
 import cz.pechdavid.mycelium.core.messaging.ConsumerProxy
@@ -7,6 +13,8 @@ import cz.pechdavid.mycelium.core.node.NodeStatus
 import akka.event.slf4j.SLF4JLogging
 
 /**
+ * Worker module (with queue and producer)
+ *
  * Created: 2/10/13 2:34 PM
  */
 abstract class WorkerModule(name: String) extends ConsumerProxy with SLF4JLogging {

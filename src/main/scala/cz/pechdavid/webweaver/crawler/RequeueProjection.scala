@@ -1,3 +1,9 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.webweaver.crawler
 
 import cz.pechdavid.mycelium.core.module.WorkerModule
@@ -6,6 +12,8 @@ import cz.pechdavid.webweaver.structured.ParsedHtml
 import java.net.{MalformedURLException, URL}
 
 /**
+ * Adds a new URL back to the queue
+ *
  * Created: 4/11/13 5:39 PM
  */
 class RequeueProjection(allowedHosts: Option[Set[String]]) extends WorkerModule("requeueProjection") {

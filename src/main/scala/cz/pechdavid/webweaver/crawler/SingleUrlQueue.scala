@@ -1,3 +1,9 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.webweaver.crawler
 
 import cz.pechdavid.mycelium.core.module.{StartModule, WorkerModule}
@@ -7,6 +13,8 @@ import scala.concurrent.duration._
 import akka.event.slf4j.SLF4JLogging
 
 /**
+ * Testing queue implementation
+ *
  * Created: 2/22/13 7:28 PM
  */
 class SingleUrlQueue(queue: util.Deque[String]) extends WorkerModule("queue") with SLF4JLogging {

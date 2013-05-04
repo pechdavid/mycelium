@@ -1,9 +1,17 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.webweaver.structured
 
 import com.mongodb.casbah.Imports._
 import cz.pechdavid.mycelium.extension.mongo.ConnectionParams
 
 /**
+ * Reading structured document
+ *
  * Created: 2/24/13 7:26 PM
  */
 object StructuredContentTrl {

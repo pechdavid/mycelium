@@ -1,3 +1,9 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.webweaver.structured
 
 import cz.pechdavid.mycelium.core.event.EventHandler
@@ -10,6 +16,8 @@ import java.net.URL
 import org.jsoup.nodes.Document
 
 /**
+ * Parsing the HTML documents
+ *
  * Created: 2/23/13 8:32 PM
  */
 class ParserEventHandler(notify: Set[String]) extends EventHandler {

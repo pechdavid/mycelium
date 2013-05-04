@@ -1,3 +1,9 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.webweaver.graph
 
 import org.neo4j.scala.{SingletonEmbeddedGraphDatabaseServiceProvider, Neo4jWrapper}
@@ -12,6 +18,8 @@ import scala.collection.mutable
 case class StoredNode(name: String)
 
 /**
+ * In-JVM neo4j embedded storage
+ *
  * Created: 4/13/13 12:00 PM
  */
 object Neo4jDb extends Neo4jWrapper with SingletonEmbeddedGraphDatabaseServiceProvider {

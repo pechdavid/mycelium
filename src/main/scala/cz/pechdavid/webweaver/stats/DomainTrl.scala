@@ -1,8 +1,16 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.webweaver.stats
 
 import scala.util.Random
 
 /**
+ * Load data from domain
+ *
  * Created: 4/14/13 12:18 AM
  */
 class DomainTrl {

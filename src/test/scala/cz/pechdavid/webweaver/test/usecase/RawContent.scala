@@ -1,3 +1,9 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.webweaver.test.usecase
 
 import org.junit.runner.RunWith
@@ -9,7 +15,7 @@ import akka.actor.Props
 import cz.pechdavid.webweaver.structured.{ParsedHtml, ParserEventHandler, StructuredContentProjection}
 import cz.pechdavid.mycelium.core.module.{StartModule, PostInitialize, ModuleSpec}
 import cz.pechdavid.mycelium.extension.mongo.ConnectionParams
-import cz.pechdavid.webweaver.raw.{RawEventHandler, RawContentTrl, RawFile}
+import cz.pechdavid.webweaver.raw.{RawContentTrl, RawFile}
 import java.util.concurrent.LinkedBlockingDeque
 import akka.testkit.TestActor
 import cz.pechdavid.mycelium.test.usecase.ConsumingTstModule

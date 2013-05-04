@@ -1,3 +1,9 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.webweaver
 
 import cz.pechdavid.webweaver.crawler.{RequeueProjection, DownloadHandler, PersistentQueue, WebWeaver}
@@ -15,17 +21,25 @@ import cz.pechdavid.webweaver.stats.{DomainProjection, DownloadUseCase, ResendPr
 import cz.pechdavid.mycelium.core.domain.RelayEventHandler
 
 /**
+ * WebWeaver application launcher
  * Created: 2/22/13 5:46 PM
  */
-
 object Launcher extends App with Directives {
 
 
+  // MongoDB connection params
   val conn = ConnectionParams("localhost", "mycelium")
 
+  // HTTP server
   val httpServer = (ms: ModuleSpec) => {
     Props(new WebServerModule(ms.name, "localhost", 8080)(Controller))
   }
+
+  // set allowed domains (filter)
+  val requeue = (ms: ModuleSpec) => {
+    Props(new RequeueProjection(Option(Set("raynet.cz", "www.raynetmarketing.cz", "www.simlog.cz", "cs.wikipedia.org"))))
+  }
+
 
   val ftsModules = (ms: ModuleSpec) => {
     Props(new FulltextProjection)
@@ -33,10 +47,6 @@ object Launcher extends App with Directives {
 
   val queue = (ms: ModuleSpec) => {
     Props(new PersistentQueue(conn))
-  }
-
-  val requeue = (ms: ModuleSpec) => {
-    Props(new RequeueProjection(Option(Set("raynet.cz", "www.raynetmarketing.cz", "www.simlog.cz", "cs.wikipedia.org"))))
   }
 
   val structured = (ms: ModuleSpec) => {
@@ -59,6 +69,7 @@ object Launcher extends App with Directives {
     Props(new DomainProjection)
   }
 
+  // start the application
   new WebWeaver(Map("httpServer" -> httpServer, "fulltextProjection" -> ftsModules,
       "queue" -> queue, "requeueProjection" -> requeue, "structuredContentProjection" -> structured,
       "rawContentProjection" -> rawContent, "graphProjection" -> graphProjection, "resendProjection" -> resendProjection,
@@ -71,5 +82,4 @@ object Launcher extends App with Directives {
         "resendProjection")), new RelayEventHandler(Set("domainProjection")),
       new GzipEventHandler(Set("rawContentProjection")))
   )
-
 }

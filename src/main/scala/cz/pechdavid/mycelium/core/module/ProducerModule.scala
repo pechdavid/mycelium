@@ -1,9 +1,17 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.mycelium.core.module
 
 import cz.pechdavid.mycelium.core.messaging.ProducerProxy
 import akka.event.slf4j.SLF4JLogging
 
 /**
+ * Producing module stub
+ *
  * Created: 2/17/13 9:19 PM
  */
 abstract class ProducerModule(name: String) extends ProducerProxy with ModuleRef with SLF4JLogging {

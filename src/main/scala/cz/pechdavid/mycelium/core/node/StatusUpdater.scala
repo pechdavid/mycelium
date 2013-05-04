@@ -1,3 +1,9 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.mycelium.core.node
 
 import akka.amqp._
@@ -5,6 +11,8 @@ import scala.concurrent.duration._
 import cz.pechdavid.mycelium.core.messaging.ConsumerProxy
 
 /**
+ * System status controller - stats dependencies if offline etc.
+ *
  * Created: 2/17/13 12:31 PM
  */
 class StatusUpdater(node: SystemNode) extends ConsumerProxy {

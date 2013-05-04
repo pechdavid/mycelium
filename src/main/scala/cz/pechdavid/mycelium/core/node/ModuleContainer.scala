@@ -1,8 +1,16 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.mycelium.core.node
 
 import cz.pechdavid.mycelium.core.module.ModuleSpec
 
 /**
+ * Status holder for the SystemNode
+ *
  * Created: 2/19/13 11:45 PM
  */
 class ModuleContainer {

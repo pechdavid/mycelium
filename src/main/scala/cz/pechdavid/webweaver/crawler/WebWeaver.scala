@@ -1,3 +1,9 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.webweaver.crawler
 
 import cz.pechdavid.mycelium.core.command.{RegisterCommandHandler, CommandBus, CommandHandler}
@@ -7,6 +13,8 @@ import cz.pechdavid.mycelium.core.node.SystemNode
 import cz.pechdavid.mycelium.core.module.ModuleSpec
 
 /**
+ * Run container for the application providind command bus and event handler
+ *
  * Created: 2/22/13 6:05 PM
  */
 class WebWeaver(launchPatterns: Map[String, (ModuleSpec) => Props] = Map.empty, modules: List[ModuleSpec] = Nil,

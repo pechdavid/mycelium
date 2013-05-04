@@ -1,3 +1,9 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.webweaver.raw
 
 import cz.pechdavid.mycelium.extension.mongo.ConnectionParams
@@ -7,6 +13,8 @@ import scala.io.Source
 
 
 /**
+ * Reads raw gzipped content from gridfs
+ *
  * Created: 3/4/13 11:30 PM
  */
 class RawContentTrl(con: ConnectionParams) {

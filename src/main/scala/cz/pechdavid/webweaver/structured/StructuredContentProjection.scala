@@ -1,3 +1,9 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.webweaver.structured
 
 import com.mongodb.casbah.commons.{MongoDBListBuilder, MongoDBList, MongoDBObject}
@@ -6,6 +12,8 @@ import net.liftweb.json.JsonAST.JValue
 import cz.pechdavid.mycelium.extension.mongo.ConnectionParams
 
 /**
+ * Storing structured documents
+ *
  * Created: 2/24/13 5:48 PM
  */
 class StructuredContentProjection(connection: ConnectionParams) extends WorkerModule("structuredContentProjection") {

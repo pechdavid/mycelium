@@ -1,3 +1,9 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.webweaver.raw
 
 import cz.pechdavid.mycelium.core.event.EventHandler
@@ -7,6 +13,8 @@ import java.util.zip.GZIPOutputStream
 import java.io.ByteArrayOutputStream
 
 /**
+ * Gzipping event handler
+ *
  * Created: 2/24/13 5:48 PM
  */
 class GzipEventHandler(notify: Set[String]) extends EventHandler {

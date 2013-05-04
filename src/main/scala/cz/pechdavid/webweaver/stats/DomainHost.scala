@@ -1,3 +1,9 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.webweaver.stats
 
 import cz.pechdavid.mycelium.core.event.Event
@@ -6,6 +12,8 @@ import scala.collection.mutable
 import java.net.URL
 
 /**
+ * Aggregate root for domain example
+ *
  * Created: 4/13/13 9:39 PM
  */
 class DomainHost(val host: String) extends AggregateRoot {

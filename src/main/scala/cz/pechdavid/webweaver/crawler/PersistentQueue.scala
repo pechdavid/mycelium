@@ -1,3 +1,9 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.webweaver.crawler
 
 import cz.pechdavid.mycelium.core.module.{StartModule, WorkerModule}
@@ -10,6 +16,8 @@ import com.mongodb.casbah.Imports._
 import org.joda.time.DateTime
 
 /**
+ * Persistent queue implementation for Mongo
+ *
  * Created: 4/2/13 9:36 PM
  */
 class PersistentQueue(connection: ConnectionParams) extends WorkerModule("queue") {

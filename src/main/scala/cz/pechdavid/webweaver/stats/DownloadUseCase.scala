@@ -1,3 +1,9 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.webweaver.stats
 
 import cz.pechdavid.mycelium.core.command.CommandHandler
@@ -5,6 +11,8 @@ import java.net.URL
 import util.Try
 
 /**
+ * Command Handler = DDD use-case
+ *
  * Created: 4/13/13 10:52 PM
  */
 class DownloadUseCase extends CommandHandler {

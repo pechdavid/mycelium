@@ -1,3 +1,9 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.mycelium.core.messaging
 
 import akka.amqp.{Delivery, QueueBinding, CreateChannel, AmqpExtension}
@@ -11,6 +17,8 @@ import akka.actor.{Actor, ActorRef}
 import cz.pechdavid.mycelium.core.module.ModuleRef
 
 /**
+ * Proxy allowing message receiving
+ *
  * Created: 2/17/13 8:17 PM
  */
 trait ConsumerProxy extends ProducerProxy with ModuleRef {
@@ -32,6 +40,11 @@ trait ConsumerProxy extends ProducerProxy with ModuleRef {
 
   def bindings(): Seq[QueueBinding]
 
+  /**
+   * Delivery parsing
+   * @param del
+   * @return parsed JSON
+   */
   def parseDelivery(del: Delivery) = {
     val inp = new String(del.payload, "utf-8")
     JsonParser.parse(inp)

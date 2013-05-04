@@ -1,3 +1,9 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.webweaver.web
 
 import spray.routing.Directives
@@ -44,8 +50,18 @@ case class ControllerDownload(url: Option[String])
 
 case class ControllerIndex(queue: Option[String])
 
+/**
+ * Web layer
+ */
 object Controller extends RoutingRules with Directives {
 
+  /**
+   * routing architecture
+   * @param ftsModule
+   * @param queue
+   * @param actorRefFactory
+   * @return
+   */
   def routing(ftsModule: ActorRef, queue: ActorRef)(implicit actorRefFactory: ActorRefFactory) = {
     val con = ConnectionParams("localhost", "mycelium")
     val controller = actorRefFactory.actorOf(Props(new Controller(con, con, con, con, ftsModule, queue)), "controller")
@@ -169,6 +185,15 @@ object Controller extends RoutingRules with Directives {
 }
 
 
+/**
+ * Procesing requests
+ * @param rawCon
+ * @param structuredCon
+ * @param graphCon
+ * @param statsCon
+ * @param ftsModule
+ * @param queueWorker
+ */
 class Controller(rawCon: ConnectionParams, structuredCon: ConnectionParams, graphCon: ConnectionParams,
                  statsCon: ConnectionParams, ftsModule: ActorRef, queueWorker: ActorRef) extends Actor {
 

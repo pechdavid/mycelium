@@ -1,3 +1,9 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.webweaver.raw
 
 import cz.pechdavid.mycelium.core.module.WorkerModule
@@ -6,6 +12,8 @@ import cz.pechdavid.mycelium.extension.mongo.ConnectionParams
 import akka.event.slf4j.SLF4JLogging
 
 /**
+ * Stores raw content to GridFS
+ *
  * Created: 2/24/13 5:48 PM
  */
 class RawContentProjection(conn: ConnectionParams) extends WorkerModule("rawContentProjection") with SLF4JLogging {

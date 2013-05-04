@@ -1,3 +1,9 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.mycelium.core.operator
 
 import cz.pechdavid.mycelium.core.module.ModuleSpec
@@ -8,6 +14,8 @@ import org.jgrapht.traverse.{DepthFirstIterator, TopologicalOrderIterator}
 import scala.collection.JavaConversions._
 
 /**
+ * Linear dependency resolver.
+ *
  * Created: 2/15/13 5:58 PM
  */
 class DependencyLinearizer(availableModules: Set[ModuleSpec]) {

@@ -1,3 +1,9 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.mycelium.core.messaging
 
 import akka.actor.{ActorRef, Actor}
@@ -12,6 +18,8 @@ import akka.event.LoggingAdapter
 import akka.event.slf4j.SLF4JLogging
 
 /**
+ * Actor with ability to send messages
+ *
  * Created: 2/17/13 8:20 PM
  */
 class Producer extends Actor with SLF4JLogging {

@@ -1,3 +1,9 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.mycelium.core.messaging
 
 import cz.pechdavid.mycelium.core.module.WorkerModule
@@ -5,6 +11,8 @@ import net.liftweb.json.JsonAST.JValue
 import net.liftweb.json.DefaultFormats
 
 /**
+ * Simple queue implementation
+ *
  * Created: 2/19/13 11:13 PM
  */
 class RoundRobinQueue[A <: AnyRef : Manifest](name: String, targets: List[String]) extends WorkerModule(name) {

@@ -1,8 +1,16 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.mycelium.core.node
 
 import java.security.MessageDigest
 
 /**
+ * Name generator
+ *
  * Created: 2/17/13 3:02 PM
  */
 object NodeName {

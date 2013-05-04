@@ -1,3 +1,9 @@
+/**
+ * Mycelium Master's Thesis
+ * David Pech
+ * FIT Licence
+ * 2013
+ */
 package cz.pechdavid.mycelium.core.command
 
 import akka.actor.Actor
@@ -6,6 +12,8 @@ import cz.pechdavid.mycelium.core.event.EventPack
 import akka.event.slf4j.SLF4JLogging
 
 /**
+ * Main Command Bus implementaion
+ *
  * Created: 2/15/13 11:59 PM
  */
 class CommandBus extends Actor with ModuleRef with SLF4JLogging {
