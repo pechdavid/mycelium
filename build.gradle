@@ -46,7 +46,7 @@ tasks.withType(ScalaCompile) {
 	scalaCompileOptions.additionalParameters = ['-target:jvm-1.6']
 }
 
-mainClassName = "cz.pechdavid.mycelium"
+mainClassName = "cz.pechdavid.webweaver.Launcher"
 
 apply plugin: 'java'
 apply plugin: 'scala'
@@ -89,6 +89,7 @@ dependencies {
 	compile("org.neo4j:neo4j-scala:0.2.0-M2-SNAPSHOT") {
 	  exclude group: "org.apache.lucene"
 	  exclude group: "org.neo4j", module: "neo4j-lucene-index"
+	  exclude group: "org.neo4j", module: "neo4j-rest-graphdb"
 	}
 
 	compile "com.typesafe.akka:akka-actor_2.10:2.1.0"
@@ -170,7 +171,7 @@ idea {
 
 				if (launcherEl == null) {
 					def launcherConfiguration = new NodeBuilder().configuration(default: false, name: "Launcher", type: "Application", factoryName: "Application") {
-						option(name:"MAIN_CLASS_NAME", value:"cz.pechdavid.mycelium.Launcher")
+						option(name:"MAIN_CLASS_NAME", value:"cz.pechdavid.webweaver.Launcher")
 						option(name:"VM_PARAMETERS", value:"-XX:MaxPermSize=256m -Xmx512m")
 						option(name:"PROGRAM_PARAMETERS", value:"--config application.conf")
 						option(name:"WORKING_DIRECTORY", value:'file://$PROJECT_DIR$/')

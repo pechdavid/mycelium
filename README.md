@@ -9,6 +9,15 @@ This is a repository of a custom cloud framework (Mycelium) written originally f
 * update configuration in cz.pechdavid.webweaver.Launcher
 * launch cz.pechdavid.webweaver.Launcher
 
+## Running the application
+
+Running the application requires at least:
+
+* RabbitMQ server (default user guest)
+* MongoDB (without authentication)
+* Running the application from the application root - ./gradlew run
+* After booting the application can be reached on [http://localhost:8080/](http://localhost:8080/).
+
 ## Credits
 
 * Author: David Pech for his [Master's Thesis](https://www.fit.vutbr.cz/)
