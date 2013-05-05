@@ -15,7 +15,7 @@ import akka.actor.Props
 import cz.pechdavid.webweaver.structured.{ParsedHtml, ParserEventHandler, StructuredContentProjection}
 import cz.pechdavid.mycelium.core.module.{StartModule, PostInitialize, ModuleSpec}
 import cz.pechdavid.mycelium.extension.mongo.ConnectionParams
-import cz.pechdavid.webweaver.raw.{RawContentTrl, RawFile}
+import cz.pechdavid.webweaver.raw.{GzipEventHandler, RawContentTrl, RawFile}
 import java.util.concurrent.LinkedBlockingDeque
 import akka.testkit.TestActor
 import cz.pechdavid.mycelium.test.usecase.ConsumingTstModule
@@ -60,7 +60,7 @@ class RawContent extends FlatSpec with ShouldMatchers {
     new WebWeaver(Map("queue" -> urlQueue, "myProjection" -> ((_: ModuleSpec) => Props(new ConsumingTstModule("myProjection", targetQueue)))),
       List(ModuleSpec("queue"), ModuleSpec("myProjection")),
       List(new DownloadHandler),
-      List(new RawEventHandler(Set("myProjection")))
+      List(new GzipEventHandler(Set("myProjection")))
     )
 
     Thread.sleep(15000)
